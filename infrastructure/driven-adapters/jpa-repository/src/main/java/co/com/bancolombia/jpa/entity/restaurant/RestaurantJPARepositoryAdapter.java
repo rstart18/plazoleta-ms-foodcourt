@@ -24,4 +24,9 @@ public class RestaurantJPARepositoryAdapter extends AdapterOperations<Restaurant
     public boolean existsByNit(String nit) {
         return repository.existsByNit(nit);
     }
+
+    @Override
+    public boolean isOwner(Long restaurantId, Long userId) {
+        return repository.existsByIdAndOwnerId(restaurantId, userId);
+    }
 }

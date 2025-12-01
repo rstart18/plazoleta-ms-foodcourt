@@ -5,4 +5,6 @@ import co.com.bancolombia.model.restaurant.Restaurant;
 public interface RestaurantRepository {
     Restaurant create(Restaurant restaurant);
     boolean existsByNit(String nit);
+    Restaurant findById(Long id);
+    boolean isOwner(Long restaurantId, Long userId);
 }
