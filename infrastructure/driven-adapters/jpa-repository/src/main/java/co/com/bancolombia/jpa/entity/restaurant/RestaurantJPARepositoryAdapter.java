@@ -14,4 +14,14 @@ public class RestaurantJPARepositoryAdapter extends AdapterOperations<Restaurant
     public RestaurantJPARepositoryAdapter(RestaurantJPARepository repository, ObjectMapper mapper) {
         super(repository, mapper, d -> mapper.map(d, Restaurant.class));
     }
+
+    @Override
+    public Restaurant create(Restaurant restaurant) {
+        return toEntity(repository.save(toData(restaurant)));
+    }
+
+    @Override
+    public boolean existsByNit(String nit) {
+        return repository.existsByNit(nit);
+    }
 }
