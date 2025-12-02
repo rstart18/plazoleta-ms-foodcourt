@@ -16,6 +16,10 @@ import org.springframework.web.client.RestTemplate;
 @Component
 public class UserGatewayImpl implements UserGateway {
 
+    private static final String ROLES_ENDPOINT = "/api/users/%d/roles";
+    private static final String AUTHORIZATION_HEADER = "Authorization";
+    private static final String OWNER_ROLE = "OWNER";
+
     private final RestTemplate restTemplate;
     private final String userServiceUrl;
 
@@ -27,11 +31,11 @@ public class UserGatewayImpl implements UserGateway {
 
     public boolean hasOwnerRole(Long userId, String authToken) {
         try {
-            String url = userServiceUrl + "/api/users/" + userId + "/roles";
+            String url = userServiceUrl + String.format(ROLES_ENDPOINT, userId);
             log.info("Calling user service: {}", url);
 
             HttpHeaders headers = new HttpHeaders();
-            headers.set("Authorization", authToken);
+            headers.set(AUTHORIZATION_HEADER, authToken);
             HttpEntity<String> entity = new HttpEntity<>(headers);
 
             ResponseEntity<UserApiResponse> response = restTemplate.exchange(
@@ -41,7 +45,7 @@ public class UserGatewayImpl implements UserGateway {
 
             if (apiResponse != null && apiResponse.getData() != null && apiResponse.getData().getRoles() != null) {
                 log.info("User roles: {}", apiResponse.getData().getRoles());
-                boolean hasOwnerRole = apiResponse.getData().getRoles().contains("OWNER");
+                boolean hasOwnerRole = apiResponse.getData().getRoles().contains(OWNER_ROLE);
                 log.info("Has OWNER role: {}", hasOwnerRole);
                 return hasOwnerRole;
             }
