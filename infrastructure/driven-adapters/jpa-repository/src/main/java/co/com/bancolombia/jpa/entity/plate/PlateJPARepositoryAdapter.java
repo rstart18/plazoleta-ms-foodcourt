@@ -29,6 +29,12 @@ public class PlateJPARepositoryAdapter extends AdapterOperations<Plate, PlateEnt
         }
 
         PlateEntity savedEntity = repository.save(entity);
-        return mapper.map(savedEntity, Plate.class);
+
+        Plate result = mapper.map(savedEntity, Plate.class);
+        if (savedEntity.getRestaurant() != null) {
+            result.setRestaurantId(savedEntity.getRestaurant().getId());
+        }
+
+        return result;
     }
 }

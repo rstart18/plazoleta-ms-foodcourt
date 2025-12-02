@@ -54,10 +54,6 @@ public class SecurityConfig {
 
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
-        JwtGrantedAuthoritiesConverter authoritiesConverter = new JwtGrantedAuthoritiesConverter();
-        authoritiesConverter.setAuthorityPrefix("");
-        authoritiesConverter.setAuthoritiesClaimName("roles");
-
         JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
         converter.setJwtGrantedAuthoritiesConverter(jwt -> {
             String roles = jwt.getClaimAsString("roles");
@@ -65,9 +61,12 @@ public class SecurityConfig {
                 return Collections.emptyList();
             }
 
-            return Arrays.stream(roles.split(","))
-                    .map(SimpleGrantedAuthority::new)
-                    .collect(Collectors.toList());
+            if (roles.startsWith("ROLE_")) {
+                String roleWithoutPrefix = roles.substring(5);
+                return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + roleWithoutPrefix));
+            }
+
+            return Collections.singletonList(new SimpleGrantedAuthority(roles));
         });
 
         return converter;

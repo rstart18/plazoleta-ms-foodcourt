@@ -14,7 +14,7 @@ public class CreatePlateUseCase implements CreatePlateService {
     private final RestaurantRepository restaurantRepository;
 
     @Override
-    public Plate execute(Plate plate, Long userId) {
+    public Plate createPlate(Plate plate, Long userId) {
 
         Restaurant restaurant = restaurantRepository.findById(plate.getRestaurantId());
         if (restaurant == null) {

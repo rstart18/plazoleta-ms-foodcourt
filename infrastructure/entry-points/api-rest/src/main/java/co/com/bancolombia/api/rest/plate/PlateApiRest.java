@@ -1,21 +1,19 @@
 package co.com.bancolombia.api.rest.plate;
+import co.com.bancolombia.api.config.JwtUserInterceptor;
 import co.com.bancolombia.api.constants.SecurityConstants;
 import co.com.bancolombia.api.dto.request.CreatePlateRequest;
 import co.com.bancolombia.api.dto.response.ApiResponse;
 import co.com.bancolombia.api.dto.response.PlateResponse;
 import co.com.bancolombia.api.mapper.dto.PlateMapper;
-import co.com.bancolombia.model.enums.DomainErrorCode;
-import co.com.bancolombia.model.exception.BusinessException;
 import co.com.bancolombia.model.plate.Plate;
 import co.com.bancolombia.usecase.createplate.CreatePlateService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,29 +31,13 @@ public class PlateApiRest {
     @PreAuthorize(SecurityConstants.ROLE_OWNER)
     public ResponseEntity<ApiResponse<PlateResponse>> createPlate(
             @Valid @RequestBody CreatePlateRequest request,
-            Authentication authentication) {
+            HttpServletRequest httpRequest) {
         Plate plate = plateMapper.toModel(request);
 
-        Long userId = getUserIdFromToken(authentication);
-        Plate createdPlate = createPlateService.execute(plate, userId);
+        Long userId = JwtUserInterceptor.getUserId(httpRequest);
+        Plate createdPlate = createPlateService.createPlate(plate, userId);
 
         PlateResponse response = plateMapper.toResponse(createdPlate);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.of(response));
     }
-
-    private Long getUserIdFromToken(Authentication authentication) {
-        JwtAuthenticationToken jwtToken = (JwtAuthenticationToken) authentication;
-
-        Number userId = jwtToken.getToken().getClaim("userId");
-
-        if (userId == null) {
-            throw new BusinessException(
-                    DomainErrorCode.INVALID_TOKEN.getCode(),
-                    "Token JWT no contiene userId"
-            );
-        }
-
-        return userId.longValue();
-    }
-
 }
