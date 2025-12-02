@@ -24,4 +24,5 @@ include ':api-rest'
 project(':api-rest').projectDir = file('./infrastructure/entry-points/api-rest')
 include ':jpa-repository'
 project(':jpa-repository').projectDir = file('./infrastructure/driven-adapters/jpa-repository')
-include 'infrastructure:driven-adapters:gateway-adapter'
+include ':gateway-adapter'
+project(':gateway-adapter').projectDir = file('./infrastructure/driven-adapters/gateway-adapter')
