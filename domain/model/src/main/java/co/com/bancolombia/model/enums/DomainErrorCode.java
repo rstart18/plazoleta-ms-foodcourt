@@ -13,7 +13,8 @@ public enum DomainErrorCode {
     INVALID_PHONE_FORMAT("INVALID_PHONE_FORMAT", "Formato de teléfono inválido"),
     INVALID_NIT_FORMAT("INVALID_NIT_FORMAT", "El NIT debe contener únicamente números"),
     RESTAURANT_NOT_OWNER("RESTAURANT_NOT_OWNER", "El usuario no es propietario del restaurante"),
-    USER_NOT_OWNER("USER_NOT_OWNER", "El usuario no tiene rol de propietario");
+    USER_NOT_OWNER("USER_NOT_OWNER", "El usuario no tiene rol de propietario"),
+    PLATE_NOT_FOUND("PLATE_NOT_FOUND", "Plato no encontrado");
 
     private final String code;
     private final String message;

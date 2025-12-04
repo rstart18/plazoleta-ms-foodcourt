@@ -9,6 +9,8 @@ import co.com.bancolombia.model.restaurant.gateways.RestaurantRepository;
 import org.reactivecommons.utils.ObjectMapper;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public class PlateJPARepositoryAdapter extends AdapterOperations<Plate, PlateEntity, Long, PlateJPARepository>
  implements PlateRepository
@@ -37,4 +39,40 @@ public class PlateJPARepositoryAdapter extends AdapterOperations<Plate, PlateEnt
 
         return result;
     }
+
+    @Override
+    public Plate findById(Long id) {
+        Optional<PlateEntity> entity = repository.findById(id);
+        if (entity.isEmpty()) {
+            return null;
+        }
+
+        Plate result = mapper.map(entity.get(), Plate.class);
+        if (entity.get().getRestaurant() != null) {
+            result.setRestaurantId(entity.get().getRestaurant().getId());
+        }
+
+        return result;
+    }
+
+    @Override
+    public Plate update(Plate plate) {
+        PlateEntity entity = mapper.map(plate, PlateEntity.class);
+
+        if (plate.getRestaurantId() != null) {
+            RestaurantEntity restaurantEntity = new RestaurantEntity();
+            restaurantEntity.setId(plate.getRestaurantId());
+            entity.setRestaurant(restaurantEntity);
+        }
+
+        PlateEntity savedEntity = repository.save(entity);
+
+        Plate result = mapper.map(savedEntity, Plate.class);
+        if (savedEntity.getRestaurant() != null) {
+            result.setRestaurantId(savedEntity.getRestaurant().getId());
+        }
+
+        return result;
+    }
+
 }
