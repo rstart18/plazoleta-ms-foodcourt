@@ -1,7 +1,6 @@
 package co.com.bancolombia.gateway;
 
 import co.com.bancolombia.gateway.dto.UserApiResponse;
-import co.com.bancolombia.gateway.dto.UserRoleResponse;
 import co.com.bancolombia.model.user.gateways.UserGateway;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
