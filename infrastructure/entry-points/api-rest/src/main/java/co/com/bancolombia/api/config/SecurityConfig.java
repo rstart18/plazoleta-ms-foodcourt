@@ -3,28 +3,21 @@ package co.com.bancolombia.api.config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
-import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 
 import javax.crypto.spec.SecretKeySpec;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.stream.Collectors;
 
 @Configuration
 @EnableWebSecurity(debug = true)
@@ -57,16 +50,17 @@ public class SecurityConfig {
         JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
         converter.setJwtGrantedAuthoritiesConverter(jwt -> {
             String roles = jwt.getClaimAsString("roles");
-            if (roles == null || roles.isEmpty()) {
-                return Collections.emptyList();
+
+            Collection<GrantedAuthority> authorities = Collections.emptyList();
+
+            if (roles != null && !roles.isEmpty()) {
+                String authority = roles.startsWith("ROLE_")
+                        ? "ROLE_" + roles.substring(5)
+                        : roles;
+                authorities = Collections.singletonList(new SimpleGrantedAuthority(authority));
             }
 
-            if (roles.startsWith("ROLE_")) {
-                String roleWithoutPrefix = roles.substring(5);
-                return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + roleWithoutPrefix));
-            }
-
-            return Collections.singletonList(new SimpleGrantedAuthority(roles));
+            return authorities;
         });
 
         return converter;

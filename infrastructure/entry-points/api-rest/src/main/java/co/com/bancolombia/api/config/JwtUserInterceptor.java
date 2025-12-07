@@ -27,6 +27,7 @@ public class JwtUserInterceptor implements HandlerInterceptor {
     }
 
     private Long extractUserIdFromToken(String authorizationHeader) {
+        Long result;
         try {
             String token = authorizationHeader.replace("Bearer ", "");
             String[] parts = token.split("\\.");
@@ -36,20 +37,23 @@ public class JwtUserInterceptor implements HandlerInterceptor {
             Map<String, Object> claims = mapper.readValue(payload, Map.class);
 
             Number userId = (Number) claims.get("userId");
-            if (userId == null) {
-                throw new BusinessException(
-                        DomainErrorCode.INVALID_TOKEN.getCode(),
-                        "Token JWT no contiene userId"
-                );
+            String errorMessage = userId == null ? "Token JWT no contiene userId" : null;
+            
+            if (errorMessage != null) {
+                throw new BusinessException(DomainErrorCode.INVALID_TOKEN.getCode(), errorMessage);
             }
-
-            return userId.longValue();
+            
+            result = userId.longValue();
+        } catch (BusinessException e) {
+            throw e;
         } catch (Exception e) {
             throw new BusinessException(
                     DomainErrorCode.INVALID_TOKEN.getCode(),
                     "Error al procesar token JWT"
             );
         }
+        
+        return result;
     }
 
     public static Long getUserId(HttpServletRequest request) {

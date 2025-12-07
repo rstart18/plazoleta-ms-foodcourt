@@ -43,17 +43,17 @@ public class PlateJPARepositoryAdapter extends AdapterOperations<Plate, PlateEnt
     @Override
     public Plate findById(Long id) {
         Optional<PlateEntity> entity = repository.findById(id);
-        if (entity.isEmpty()) {
-            return null;
-        }
-
-        Plate result = mapper.map(entity.get(), Plate.class);
-        if (entity.get().getRestaurant() != null) {
-            result.setRestaurantId(entity.get().getRestaurant().getId());
-        }
-
+        Plate result = entity.map(plateEntity -> {
+            Plate plate = mapper.map(plateEntity, Plate.class);
+            if (plateEntity.getRestaurant() != null) {
+                plate.setRestaurantId(plateEntity.getRestaurant().getId());
+            }
+            return plate;
+        }).orElse(null);
+        
         return result;
     }
+
 
     @Override
     public Plate update(Plate plate) {

@@ -29,6 +29,8 @@ public class UserGatewayImpl implements UserGateway {
     }
 
     public boolean hasOwnerRole(Long userId, String authToken) {
+        boolean hasOwnerRole = false;
+
         try {
             String url = userServiceUrl + String.format(ROLES_ENDPOINT, userId);
             log.info("Calling user service: {}", url);
@@ -44,14 +46,13 @@ public class UserGatewayImpl implements UserGateway {
 
             if (apiResponse != null && apiResponse.getData() != null && apiResponse.getData().getRoles() != null) {
                 log.info("User roles: {}", apiResponse.getData().getRoles());
-                boolean hasOwnerRole = apiResponse.getData().getRoles().contains(OWNER_ROLE);
+                hasOwnerRole = apiResponse.getData().getRoles().contains(OWNER_ROLE);
                 log.info("Has OWNER role: {}", hasOwnerRole);
-                return hasOwnerRole;
             }
-
-            return false;
         } catch (Exception e) {
-            return false;
+            log.error("Error calling user service for userId {}: {}", userId, e.getMessage());
         }
+
+        return hasOwnerRole;
     }
 }
