@@ -60,4 +60,29 @@ public class PlateUseCase implements PlateService {
 
         return plateRepository.update(updatedPlate);
     }
+
+    @Override
+    public Plate togglePlateStatus(Long plateId, Long userId) {
+        Plate existingPlate = plateRepository.findById(plateId);
+        if (existingPlate == null) {
+            throw new BusinessException(
+                    DomainErrorCode.PLATE_NOT_FOUND.getCode(),
+                    DomainErrorCode.PLATE_NOT_FOUND.getMessage()
+            );
+        }
+
+        Restaurant restaurant = restaurantRepository.findById(existingPlate.getRestaurantId());
+        if (!restaurant.getOwnerId().equals(userId)) {
+            throw new BusinessException(
+                    DomainErrorCode.RESTAURANT_NOT_OWNER.getCode(),
+                    DomainErrorCode.RESTAURANT_NOT_OWNER.getMessage()
+            );
+        }
+
+        Plate updatedPlate = existingPlate.toBuilder()
+                .active(!existingPlate.getActive())
+                .build();
+
+        return plateRepository.update(updatedPlate);
+    }
 }

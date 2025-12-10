@@ -3,6 +3,7 @@ package co.com.bancolombia.api.mapper.dto;
 import co.com.bancolombia.api.dto.request.CreatePlateRequest;
 import co.com.bancolombia.api.dto.request.UpdatePlateRequest;
 import co.com.bancolombia.api.dto.response.PlateResponse;
+import co.com.bancolombia.api.dto.response.PlateStatusResponse;
 import co.com.bancolombia.model.plate.Plate;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -23,4 +24,6 @@ public interface PlateMapper {
     Plate toModel(UpdatePlateRequest request);
 
     PlateResponse toResponse(Plate plate);
+
+    PlateStatusResponse toStatusResponse(Plate plate);
 }

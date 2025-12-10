@@ -6,6 +6,7 @@ import co.com.bancolombia.api.dto.request.CreatePlateRequest;
 import co.com.bancolombia.api.dto.request.UpdatePlateRequest;
 import co.com.bancolombia.api.dto.response.ApiResponse;
 import co.com.bancolombia.api.dto.response.PlateResponse;
+import co.com.bancolombia.api.dto.response.PlateStatusResponse;
 import co.com.bancolombia.api.mapper.dto.PlateMapper;
 import co.com.bancolombia.model.plate.Plate;
 import co.com.bancolombia.usecase.plate.PlateService;
@@ -59,4 +60,18 @@ public class PlateApiRest {
         PlateResponse response = plateMapper.toResponse(updatedPlate);
         return ResponseEntity.ok(ApiResponse.of(response));
     }
+
+    @PatchMapping("/{plateId}/status")
+    @PreAuthorize(SecurityConstants.ROLE_OWNER)
+    public ResponseEntity<ApiResponse<PlateStatusResponse>> togglePlateStatus(
+            @PathVariable("plateId") Long plateId,
+            HttpServletRequest httpRequest) {
+
+        Long userId = JwtUserInterceptor.getUserId(httpRequest);
+        Plate updatedPlate = plateService.togglePlateStatus(plateId, userId);
+
+        PlateStatusResponse response = plateMapper.toStatusResponse(updatedPlate);
+        return ResponseEntity.ok(ApiResponse.of(response));
+    }
+
 }
