@@ -5,7 +5,7 @@ import co.com.bancolombia.api.dto.response.ApiResponse;
 import co.com.bancolombia.api.dto.response.RestaurantResponse;
 import co.com.bancolombia.api.mapper.dto.RestaurantMapper;
 import co.com.bancolombia.model.restaurant.Restaurant;
-import co.com.bancolombia.usecase.createrestaurant.CreateRestaurantService;
+import co.com.bancolombia.usecase.restaurant.RestaurantService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class RestaurantApiRest {
 
-    private final CreateRestaurantService createRestaurantService;
+    private final RestaurantService createRestaurantService;
     private final RestaurantMapper restaurantMapper;
 
     @PostMapping

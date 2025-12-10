@@ -3,7 +3,7 @@ package co.com.bancolombia.api.rest.restaurant;
 import co.com.bancolombia.api.constants.SecurityConstants;
 import co.com.bancolombia.api.dto.response.ApiResponse;
 import co.com.bancolombia.api.dto.response.OwnerValidationResponse;
-import co.com.bancolombia.usecase.validateowner.ValidateOwnerService;
+import co.com.bancolombia.usecase.owner.OwnerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class RestaurantValidationApiRest {
 
-    private final ValidateOwnerService validateOwnerService;
+    private final OwnerService validateOwnerService;
 
     @GetMapping("/{restaurantId}/owner/{ownerId}")
     @PreAuthorize(SecurityConstants.ROLE_OWNER)

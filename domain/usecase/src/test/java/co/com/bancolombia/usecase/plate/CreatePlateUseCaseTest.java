@@ -1,4 +1,4 @@
-package co.com.bancolombia.usecase.createplate;
+package co.com.bancolombia.usecase.plate;
 
 import co.com.bancolombia.model.enums.DomainErrorCode;
 import co.com.bancolombia.model.exception.BusinessException;
@@ -29,7 +29,7 @@ class CreatePlateUseCaseTest {
     private RestaurantRepository restaurantRepository;
 
     @InjectMocks
-    private CreatePlateUseCase createPlateUseCase;
+    private PlateUseCase plateUseCase;
 
     private Plate plate;
     private Restaurant restaurant;
@@ -64,7 +64,7 @@ class CreatePlateUseCaseTest {
         when(plateRepository.create(plate)).thenReturn(expectedPlate);
 
         // When
-        Plate result = createPlateUseCase.createPlate(plate, userId);
+        Plate result = plateUseCase.createPlate(plate, userId);
 
         // Then
         assertNotNull(result);
@@ -83,7 +83,7 @@ class CreatePlateUseCaseTest {
 
         // When & Then
         BusinessException exception = assertThrows(BusinessException.class,
-                () -> createPlateUseCase.createPlate(plate, userId));
+                () -> plateUseCase.createPlate(plate, userId));
 
         assertEquals(DomainErrorCode.RESTAURANT_NOT_FOUND.getCode(), exception.getCode());
         assertEquals(DomainErrorCode.RESTAURANT_NOT_FOUND.getMessage(), exception.getMessage());
@@ -100,7 +100,7 @@ class CreatePlateUseCaseTest {
 
         // When & Then
         BusinessException exception = assertThrows(BusinessException.class,
-                () -> createPlateUseCase.createPlate(plate, differentUserId));
+                () -> plateUseCase.createPlate(plate, differentUserId));
 
         assertEquals(DomainErrorCode.RESTAURANT_NOT_OWNER.getCode(), exception.getCode());
         assertEquals(DomainErrorCode.RESTAURANT_NOT_OWNER.getMessage(), exception.getMessage());

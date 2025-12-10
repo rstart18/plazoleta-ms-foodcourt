@@ -1,4 +1,4 @@
-package co.com.bancolombia.usecase.updatePlate;
+package co.com.bancolombia.usecase.plate;
 
 import co.com.bancolombia.model.enums.DomainErrorCode;
 import co.com.bancolombia.model.exception.BusinessException;
@@ -29,7 +29,7 @@ class UpdatePlateUseCaseTest {
     private RestaurantRepository restaurantRepository;
 
     @InjectMocks
-    private UpdatePlateUseCase updatePlateUseCase;
+    private PlateUseCase plateUseCase;
 
     private Plate existingPlate;
     private Plate plateUpdates;
@@ -78,7 +78,7 @@ class UpdatePlateUseCaseTest {
         when(plateRepository.update(any(Plate.class))).thenReturn(expectedUpdatedPlate);
 
         // When
-        Plate result = updatePlateUseCase.updatePlate(plateId, plateUpdates, userId);
+        Plate result = plateUseCase.updatePlate(plateId, plateUpdates, userId);
 
         // Then
         assertNotNull(result);
@@ -99,7 +99,7 @@ class UpdatePlateUseCaseTest {
 
         // When & Then
         BusinessException exception = assertThrows(BusinessException.class,
-                () -> updatePlateUseCase.updatePlate(plateId, plateUpdates, userId));
+                () -> plateUseCase.updatePlate(plateId, plateUpdates, userId));
 
         assertEquals(DomainErrorCode.PLATE_NOT_FOUND.getCode(), exception.getCode());
         assertEquals(DomainErrorCode.PLATE_NOT_FOUND.getMessage(), exception.getMessage());
@@ -118,7 +118,7 @@ class UpdatePlateUseCaseTest {
 
         // When & Then
         BusinessException exception = assertThrows(BusinessException.class,
-                () -> updatePlateUseCase.updatePlate(plateId, plateUpdates, differentUserId));
+                () -> plateUseCase.updatePlate(plateId, plateUpdates, differentUserId));
 
         assertEquals(DomainErrorCode.RESTAURANT_NOT_OWNER.getCode(), exception.getCode());
         assertEquals(DomainErrorCode.RESTAURANT_NOT_OWNER.getMessage(), exception.getMessage());
@@ -136,7 +136,7 @@ class UpdatePlateUseCaseTest {
         when(plateRepository.update(any(Plate.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // When
-        Plate result = updatePlateUseCase.updatePlate(plateId, plateUpdates, userId);
+        Plate result = plateUseCase.updatePlate(plateId, plateUpdates, userId);
 
         // Then
         assertEquals(new BigDecimal("28000.00"), result.getPrice());

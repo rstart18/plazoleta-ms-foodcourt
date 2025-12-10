@@ -1,4 +1,5 @@
 package co.com.bancolombia.api.rest.plate;
+
 import co.com.bancolombia.api.config.JwtUserInterceptor;
 import co.com.bancolombia.api.constants.SecurityConstants;
 import co.com.bancolombia.api.dto.request.CreatePlateRequest;
@@ -7,8 +8,7 @@ import co.com.bancolombia.api.dto.response.ApiResponse;
 import co.com.bancolombia.api.dto.response.PlateResponse;
 import co.com.bancolombia.api.mapper.dto.PlateMapper;
 import co.com.bancolombia.model.plate.Plate;
-import co.com.bancolombia.usecase.createplate.CreatePlateService;
-import co.com.bancolombia.usecase.updatePlate.UpdatePlateService;
+import co.com.bancolombia.usecase.plate.PlateService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,8 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class PlateApiRest {
 
-    private final CreatePlateService createPlateService;
-    private final UpdatePlateService updatePlateService;
+    private final PlateService plateService;
     private final PlateMapper plateMapper;
 
     @PostMapping
@@ -40,7 +39,7 @@ public class PlateApiRest {
         Plate plate = plateMapper.toModel(request);
 
         Long userId = JwtUserInterceptor.getUserId(httpRequest);
-        Plate createdPlate = createPlateService.createPlate(plate, userId);
+        Plate createdPlate = plateService.createPlate(plate, userId);
 
         PlateResponse response = plateMapper.toResponse(createdPlate);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.of(response));
@@ -55,7 +54,7 @@ public class PlateApiRest {
 
         Plate plateUpdates = plateMapper.toModel(request);
         Long userId = JwtUserInterceptor.getUserId(httpRequest);
-        Plate updatedPlate = updatePlateService.updatePlate(plateId, plateUpdates, userId);
+        Plate updatedPlate = plateService.updatePlate(plateId, plateUpdates, userId);
 
         PlateResponse response = plateMapper.toResponse(updatedPlate);
         return ResponseEntity.ok(ApiResponse.of(response));

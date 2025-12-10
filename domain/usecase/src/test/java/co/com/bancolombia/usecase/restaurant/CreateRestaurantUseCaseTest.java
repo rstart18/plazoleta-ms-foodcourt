@@ -1,4 +1,4 @@
-package co.com.bancolombia.usecase.createrestaurant;
+package co.com.bancolombia.usecase.restaurant;
 
 import co.com.bancolombia.model.enums.DomainErrorCode;
 import co.com.bancolombia.model.exception.BusinessException;
@@ -26,7 +26,7 @@ class CreateRestaurantUseCaseTest {
     private UserGateway userGateway;
 
     @InjectMocks
-    private CreateRestaurantUseCase createRestaurantUseCase;
+    private RestaurantUseCase createRestaurantUseCase;
 
     private Restaurant restaurant;
     private String authToken;

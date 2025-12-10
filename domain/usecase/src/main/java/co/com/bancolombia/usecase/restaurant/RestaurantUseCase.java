@@ -1,4 +1,4 @@
-package co.com.bancolombia.usecase.createrestaurant;
+package co.com.bancolombia.usecase.restaurant;
 
 import co.com.bancolombia.model.enums.DomainErrorCode;
 import co.com.bancolombia.model.exception.BusinessException;
@@ -7,7 +7,7 @@ import co.com.bancolombia.model.restaurant.gateways.RestaurantRepository;
 import co.com.bancolombia.model.user.gateways.UserGateway;
 import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
-public class CreateRestaurantUseCase implements CreateRestaurantService {
+public class RestaurantUseCase implements RestaurantService {
 
     private final RestaurantRepository restaurantRepository;
     private final UserGateway userGateway;

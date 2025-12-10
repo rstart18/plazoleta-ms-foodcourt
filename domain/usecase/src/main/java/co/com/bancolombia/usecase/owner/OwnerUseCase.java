@@ -1,11 +1,11 @@
-package co.com.bancolombia.usecase.validateowner;
+package co.com.bancolombia.usecase.owner;
 
 import co.com.bancolombia.model.restaurant.Restaurant;
 import co.com.bancolombia.model.restaurant.gateways.RestaurantRepository;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class ValidateOwnerUseCase implements ValidateOwnerService {
+public class OwnerUseCase implements OwnerService {
 
     private final RestaurantRepository restaurantRepository;
 
