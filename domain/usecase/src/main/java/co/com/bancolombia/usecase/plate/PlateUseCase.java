@@ -1,5 +1,6 @@
 package co.com.bancolombia.usecase.plate;
 
+import co.com.bancolombia.model.page.PagedResult;
 import co.com.bancolombia.model.enums.DomainErrorCode;
 import co.com.bancolombia.model.exception.BusinessException;
 import co.com.bancolombia.model.plate.Plate;
@@ -84,5 +85,10 @@ public class PlateUseCase implements PlateService {
                 .build();
 
         return plateRepository.update(updatedPlate);
+    }
+
+    @Override
+    public PagedResult<Plate> listPlatesByRestaurant(Long restaurantId, String category, int page, int size) {
+        return plateRepository.findByRestaurantIdAndCategory(restaurantId, category, page, size);
     }
 }
