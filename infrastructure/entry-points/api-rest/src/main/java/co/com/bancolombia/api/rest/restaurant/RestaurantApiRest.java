@@ -2,8 +2,11 @@ package co.com.bancolombia.api.rest.restaurant;
 import co.com.bancolombia.api.constants.SecurityConstants;
 import co.com.bancolombia.api.dto.request.CreateRestaurantRequest;
 import co.com.bancolombia.api.dto.response.ApiResponse;
+import co.com.bancolombia.api.dto.response.PageResponse;
+import co.com.bancolombia.api.dto.response.RestaurantListResponse;
 import co.com.bancolombia.api.dto.response.RestaurantResponse;
 import co.com.bancolombia.api.mapper.dto.RestaurantMapper;
+import co.com.bancolombia.model.page.PagedResult;
 import co.com.bancolombia.model.restaurant.Restaurant;
 import co.com.bancolombia.usecase.restaurant.RestaurantService;
 import jakarta.validation.Valid;
@@ -12,10 +15,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -23,8 +28,19 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class RestaurantApiRest {
 
-    private final RestaurantService createRestaurantService;
+    private final RestaurantService restaurantService;
     private final RestaurantMapper restaurantMapper;
+
+    @GetMapping
+    public ResponseEntity<ApiResponse<PageResponse<RestaurantListResponse>>> listRestaurants(
+            @RequestParam(value = "pageNumber", defaultValue = "0") int pageNumber,
+            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
+
+        PagedResult<Restaurant> restaurants = restaurantService.listRestaurants(pageNumber, pageSize);
+        PageResponse<RestaurantListResponse> response = restaurantMapper.toPageResponse(restaurants);
+
+        return ResponseEntity.ok(ApiResponse.of(response));
+    }
 
     @PostMapping
     @PreAuthorize(SecurityConstants.ROLE_ADMIN)
@@ -33,7 +49,7 @@ public class RestaurantApiRest {
             @RequestHeader("Authorization") String authToken) {
 
         Restaurant restaurant = restaurantMapper.toModel(request);
-        Restaurant createdRestaurant = createRestaurantService.createRestaurant(restaurant, authToken);
+        Restaurant createdRestaurant = restaurantService.createRestaurant(restaurant, authToken);
         RestaurantResponse response = restaurantMapper.toResponse(createdRestaurant);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.of(response));

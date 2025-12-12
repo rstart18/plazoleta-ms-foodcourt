@@ -2,6 +2,7 @@ package co.com.bancolombia.usecase.restaurant;
 
 import co.com.bancolombia.model.enums.DomainErrorCode;
 import co.com.bancolombia.model.exception.BusinessException;
+import co.com.bancolombia.model.page.PagedResult;
 import co.com.bancolombia.model.restaurant.Restaurant;
 import co.com.bancolombia.model.restaurant.gateways.RestaurantRepository;
 import co.com.bancolombia.model.user.gateways.UserGateway;
@@ -29,5 +30,10 @@ public class RestaurantUseCase implements RestaurantService {
         }
 
         return restaurantRepository.create(restaurant);
+    }
+
+    @Override
+    public PagedResult<Restaurant> listRestaurants(int pageNumber, int pageSize) {
+        return restaurantRepository.findAllOrderByNameAsc(pageNumber, pageSize);
     }
 }
