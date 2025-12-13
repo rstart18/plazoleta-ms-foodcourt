@@ -99,7 +99,7 @@ public class PlateApiRest {
                         plate.getPrice(),
                         plate.getUrlImage(),
                         plate.getCategory()))
-                .collect(Collectors.toList());
+                .toList();
         
         PagedPlateResponse response = new PagedPlateResponse(
                 plates,

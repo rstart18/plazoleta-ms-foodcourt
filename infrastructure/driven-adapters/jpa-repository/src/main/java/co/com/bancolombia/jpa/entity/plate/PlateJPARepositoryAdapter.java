@@ -99,7 +99,7 @@ public class PlateJPARepositoryAdapter extends AdapterOperations<Plate, PlateEnt
                     }
                     return plate;
                 })
-                .collect(Collectors.toList());
+                .toList();
         
         return new PagedResult<>(
                 plates,
