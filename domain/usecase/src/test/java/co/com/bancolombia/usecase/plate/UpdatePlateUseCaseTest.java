@@ -36,11 +36,13 @@ class UpdatePlateUseCaseTest {
     private Restaurant restaurant;
     private Long plateId;
     private Long userId;
+    private String userRole;
 
     @BeforeEach
     void setUp() {
         plateId = 1L;
         userId = 1L;
+        userRole = "OWNER";
 
         existingPlate = Plate.builder()
                 .id(plateId)
@@ -78,7 +80,7 @@ class UpdatePlateUseCaseTest {
         when(plateRepository.update(any(Plate.class))).thenReturn(expectedUpdatedPlate);
 
         // When
-        Plate result = plateUseCase.updatePlate(plateId, plateUpdates, userId);
+        Plate result = plateUseCase.updatePlate(plateId, plateUpdates, userId, userRole);
 
         // Then
         assertNotNull(result);
@@ -99,7 +101,7 @@ class UpdatePlateUseCaseTest {
 
         // When & Then
         BusinessException exception = assertThrows(BusinessException.class,
-                () -> plateUseCase.updatePlate(plateId, plateUpdates, userId));
+                () -> plateUseCase.updatePlate(plateId, plateUpdates, userId, userRole));
 
         assertEquals(DomainErrorCode.PLATE_NOT_FOUND.getCode(), exception.getCode());
         assertEquals(DomainErrorCode.PLATE_NOT_FOUND.getMessage(), exception.getMessage());
@@ -118,7 +120,7 @@ class UpdatePlateUseCaseTest {
 
         // When & Then
         BusinessException exception = assertThrows(BusinessException.class,
-                () -> plateUseCase.updatePlate(plateId, plateUpdates, differentUserId));
+                () -> plateUseCase.updatePlate(plateId, plateUpdates, differentUserId, userRole));
 
         assertEquals(DomainErrorCode.RESTAURANT_NOT_OWNER.getCode(), exception.getCode());
         assertEquals(DomainErrorCode.RESTAURANT_NOT_OWNER.getMessage(), exception.getMessage());
@@ -136,7 +138,7 @@ class UpdatePlateUseCaseTest {
         when(plateRepository.update(any(Plate.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // When
-        Plate result = plateUseCase.updatePlate(plateId, plateUpdates, userId);
+        Plate result = plateUseCase.updatePlate(plateId, plateUpdates, userId, userRole);
 
         // Then
         assertEquals(new BigDecimal("28000.00"), result.getPrice());

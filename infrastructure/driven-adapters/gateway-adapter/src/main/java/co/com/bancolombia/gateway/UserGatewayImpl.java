@@ -1,6 +1,7 @@
 package co.com.bancolombia.gateway;
 
 import co.com.bancolombia.gateway.dto.UserApiResponse;
+import co.com.bancolombia.gateway.dto.EmployeeRestaurantApiResponse;
 import co.com.bancolombia.model.user.gateways.UserGateway;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,6 +17,7 @@ import org.springframework.web.client.RestTemplate;
 public class UserGatewayImpl implements UserGateway {
 
     private static final String ROLES_ENDPOINT = "/api/users/%d/roles";
+    private static final String RESTAURANT_ENDPOINT = "/api/employees/%d/restaurant";
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String OWNER_ROLE = "OWNER";
 
@@ -54,5 +56,27 @@ public class UserGatewayImpl implements UserGateway {
         }
 
         return hasOwnerRole;
+    }
+
+    @Override
+    public Long getEmployeeRestaurantId(Long employeeId, String authToken) {
+        try {
+            String url = userServiceUrl + String.format(RESTAURANT_ENDPOINT, employeeId);
+            log.info("Calling user service for employee restaurant: {}", url);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set(AUTHORIZATION_HEADER, authToken);
+            HttpEntity<String> entity = new HttpEntity<>(headers);
+
+            ResponseEntity<EmployeeRestaurantApiResponse> response = restTemplate.exchange(
+                    url, HttpMethod.GET, entity, EmployeeRestaurantApiResponse.class);
+
+            EmployeeRestaurantApiResponse apiResponse = response.getBody();
+            return apiResponse != null && apiResponse.getData() != null ? 
+                   apiResponse.getData().getRestaurantId() : null;
+        } catch (Exception e) {
+            log.error("Error getting restaurant for employeeId {}: {}", employeeId, e.getMessage());
+            return null;
+        }
     }
 }

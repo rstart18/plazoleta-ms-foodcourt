@@ -4,8 +4,10 @@ import co.com.bancolombia.model.enums.OrderStatus;
 import co.com.bancolombia.model.order.Order;
 import co.com.bancolombia.model.order.gateway.OrderRepository;
 import co.com.bancolombia.model.orderitem.OrderItem;
+import co.com.bancolombia.model.page.PagedResult;
 import co.com.bancolombia.model.plate.Plate;
 import co.com.bancolombia.model.plate.gateways.PlateRepository;
+import co.com.bancolombia.model.user.gateways.UserGateway;
 import co.com.bancolombia.usecase.validator.OrderValidator;
 import co.com.bancolombia.usecase.validator.RoleValidator;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +21,7 @@ public class OrderUseCase implements OrderService {
 
     private final OrderRepository orderRepository;
     private final PlateRepository plateRepository;
+    private final UserGateway userGateway;
 
     @Override
     public Order createOrder(Order order, Long customerId, String userRole) {
@@ -61,5 +64,13 @@ public class OrderUseCase implements OrderService {
         return items.stream()
                 .map(OrderItem::getSubtotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    @Override
+    public PagedResult<Order> listOrdersByStatus(OrderStatus status, int page, int size, Long employeeId, String userRole, String authToken) {
+        RoleValidator.validateEmployeeRole(userRole);
+        
+        Long restaurantId = userGateway.getEmployeeRestaurantId(employeeId, authToken);
+        return orderRepository.findByStatusAndRestaurantId(status, restaurantId, page, size);
     }
 }

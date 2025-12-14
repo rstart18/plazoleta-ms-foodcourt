@@ -29,7 +29,7 @@ class CreateRestaurantUseCaseTest {
     private RestaurantUseCase createRestaurantUseCase;
 
     private Restaurant restaurant;
-    private String authToken;
+    private String userRole;
 
     @BeforeEach
     void setUp() {
@@ -42,7 +42,7 @@ class CreateRestaurantUseCaseTest {
                 .ownerId(1L)
                 .build();
 
-        authToken = "Bearer eyJhbGciOiJIUzI1NiJ9...";
+        userRole = "ADMIN";
     }
 
     @Test
@@ -50,11 +50,11 @@ class CreateRestaurantUseCaseTest {
         // Given
         Restaurant expectedRestaurant = restaurant.toBuilder().id(1L).build();
         when(restaurantRepository.existsByNit("123437789")).thenReturn(false);
-        when(userGateway.hasOwnerRole(1L, authToken)).thenReturn(true);
+        when(userGateway.hasOwnerRole(1L, "Bearer token")).thenReturn(true);
         when(restaurantRepository.create(restaurant)).thenReturn(expectedRestaurant);
 
         // When
-        Restaurant result = createRestaurantUseCase.createRestaurant(restaurant, authToken);
+        Restaurant result = createRestaurantUseCase.createRestaurant(restaurant, userRole);
 
         // Then
         assertNotNull(result);
@@ -62,7 +62,7 @@ class CreateRestaurantUseCaseTest {
         assertEquals("Restaurante El Desayunadero", result.getName());
         assertEquals("123437789", result.getNit());
         verify(restaurantRepository).existsByNit("123437789");
-        verify(userGateway).hasOwnerRole(1L, authToken);
+        verify(userGateway).hasOwnerRole(1L, "Bearer token");
         verify(restaurantRepository).create(restaurant);
     }
 
@@ -73,7 +73,7 @@ class CreateRestaurantUseCaseTest {
 
         // When & Then
         BusinessException exception = assertThrows(BusinessException.class,
-                () -> createRestaurantUseCase.createRestaurant(restaurant, authToken));
+                () -> createRestaurantUseCase.createRestaurant(restaurant, userRole));
 
         assertEquals(DomainErrorCode.RESTAURANT_NIT_ALREADY_EXISTS.getCode(), exception.getCode());
         assertEquals(DomainErrorCode.RESTAURANT_NIT_ALREADY_EXISTS.getMessage(), exception.getMessage());
@@ -87,17 +87,17 @@ class CreateRestaurantUseCaseTest {
     void shouldThrowExceptionWhenUserIsNotOwner() {
         // Given
         when(restaurantRepository.existsByNit("123437789")).thenReturn(false);
-        when(userGateway.hasOwnerRole(1L, authToken)).thenReturn(false);
+        when(userGateway.hasOwnerRole(1L, "Bearer token")).thenReturn(false);
 
         // When & Then
         BusinessException exception = assertThrows(BusinessException.class,
-                () -> createRestaurantUseCase.createRestaurant(restaurant, authToken));
+                () -> createRestaurantUseCase.createRestaurant(restaurant, userRole));
 
         assertEquals(DomainErrorCode.USER_NOT_OWNER.getCode(), exception.getCode());
         assertEquals(DomainErrorCode.USER_NOT_OWNER.getMessage(), exception.getMessage());
 
         verify(restaurantRepository).existsByNit("123437789");
-        verify(userGateway).hasOwnerRole(1L, authToken);
+        verify(userGateway).hasOwnerRole(1L, "Bearer token");
         verify(restaurantRepository, never()).create(any());
     }
 }

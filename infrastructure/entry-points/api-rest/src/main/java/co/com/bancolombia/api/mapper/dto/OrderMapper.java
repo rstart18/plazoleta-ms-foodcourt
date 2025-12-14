@@ -4,8 +4,10 @@ import co.com.bancolombia.api.dto.request.OrderItemRequest;
 import co.com.bancolombia.api.dto.request.OrderRequest;
 import co.com.bancolombia.api.dto.response.OrderItemResponse;
 import co.com.bancolombia.api.dto.response.OrderResponse;
+import co.com.bancolombia.api.dto.response.PagedOrderResponse;
 import co.com.bancolombia.model.order.Order;
 import co.com.bancolombia.model.orderitem.OrderItem;
+import co.com.bancolombia.model.page.PagedResult;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -29,4 +31,16 @@ public interface OrderMapper {
     OrderResponse toResponseDTO(Order order);
 
     OrderItemResponse toResponseDTO(OrderItem orderItem);
+
+    default PagedOrderResponse toPagedResponse(PagedResult<Order> pagedResult) {
+        return PagedOrderResponse.builder()
+                .content(pagedResult.getContent().stream()
+                        .map(this::toResponseDTO)
+                        .toList())
+                .pageNumber(pagedResult.getPageNumber())
+                .pageSize(pagedResult.getPageSize())
+                .totalElements(pagedResult.getTotalElements())
+                .totalPages(pagedResult.getTotalPages())
+                .build();
+    }
 }

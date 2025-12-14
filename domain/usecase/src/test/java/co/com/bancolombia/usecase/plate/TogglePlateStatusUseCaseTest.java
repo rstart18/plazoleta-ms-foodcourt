@@ -36,11 +36,13 @@ class TogglePlateStatusUseCaseTest {
     private Restaurant restaurant;
     private Long plateId;
     private Long userId;
+    private String userRole;
 
     @BeforeEach
     void setUp() {
         plateId = 1L;
         userId = 1L;
+        userRole = "OWNER";
 
         activePlate = Plate.builder()
                 .id(plateId)
@@ -81,7 +83,7 @@ class TogglePlateStatusUseCaseTest {
         when(plateRepository.update(any(Plate.class))).thenReturn(expectedInactivePlate);
 
         // When
-        Plate result = plateUseCase.togglePlateStatus(plateId, userId);
+        Plate result = plateUseCase.togglePlateStatus(plateId, userId, userRole);
 
         // Then
         assertNotNull(result);
@@ -106,7 +108,7 @@ class TogglePlateStatusUseCaseTest {
         when(plateRepository.update(any(Plate.class))).thenReturn(expectedActivePlate);
 
         // When
-        Plate result = plateUseCase.togglePlateStatus(plateId, userId);
+        Plate result = plateUseCase.togglePlateStatus(plateId, userId, userRole);
 
         // Then
         assertNotNull(result);
@@ -126,7 +128,7 @@ class TogglePlateStatusUseCaseTest {
 
         // When & Then
         BusinessException exception = assertThrows(BusinessException.class,
-                () -> plateUseCase.togglePlateStatus(plateId, userId));
+                () -> plateUseCase.togglePlateStatus(plateId, userId, userRole));
 
         assertEquals(DomainErrorCode.PLATE_NOT_FOUND.getCode(), exception.getCode());
         assertEquals(DomainErrorCode.PLATE_NOT_FOUND.getMessage(), exception.getMessage());
@@ -145,7 +147,7 @@ class TogglePlateStatusUseCaseTest {
 
         // When & Then
         BusinessException exception = assertThrows(BusinessException.class,
-                () -> plateUseCase.togglePlateStatus(plateId, differentUserId));
+                () -> plateUseCase.togglePlateStatus(plateId, differentUserId, userRole));
 
         assertEquals(DomainErrorCode.RESTAURANT_NOT_OWNER.getCode(), exception.getCode());
         assertEquals(DomainErrorCode.RESTAURANT_NOT_OWNER.getMessage(), exception.getMessage());
@@ -163,7 +165,7 @@ class TogglePlateStatusUseCaseTest {
         when(plateRepository.update(any(Plate.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // When
-        Plate result = plateUseCase.togglePlateStatus(plateId, userId);
+        Plate result = plateUseCase.togglePlateStatus(plateId, userId, userRole);
 
         // Then
         assertFalse(result.getActive()); // Solo debe cambiar el estado

@@ -6,7 +6,10 @@ import co.com.bancolombia.model.enums.OrderStatus;
 import co.com.bancolombia.model.order.Order;
 import co.com.bancolombia.model.order.gateway.OrderRepository;
 import co.com.bancolombia.model.orderitem.OrderItem;
+import co.com.bancolombia.model.page.PagedResult;
 import org.reactivecommons.utils.ObjectMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -103,5 +106,23 @@ public class OrderJPARepositoryAdapter extends AdapterOperations<Order, OrderEnt
                 .unitPrice(entity.getUnitPrice())
                 .subtotal(entity.getSubtotal())
                 .build();
+    }
+
+    @Override
+    public PagedResult<Order> findByStatusAndRestaurantId(OrderStatus status, Long restaurantId, int page, int size) {
+        PageRequest pageRequest = PageRequest.of(page, size);
+        Page<OrderEntity> entityPage = repository.findByStatusAndRestaurantId(status, restaurantId, pageRequest);
+        
+        List<Order> orders = entityPage.getContent().stream()
+                .map(this::mapToOrder)
+                .toList();
+        
+        return new PagedResult<>(
+                orders,
+                entityPage.getNumber(),
+                entityPage.getSize(),
+                entityPage.getTotalElements(),
+                entityPage.getTotalPages()
+        );
     }
 }

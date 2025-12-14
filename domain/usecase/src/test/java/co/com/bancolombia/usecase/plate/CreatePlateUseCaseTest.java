@@ -34,10 +34,12 @@ class CreatePlateUseCaseTest {
     private Plate plate;
     private Restaurant restaurant;
     private Long userId;
+    private String userRole;
 
     @BeforeEach
     void setUp() {
         userId = 1L;
+        userRole = "OWNER";
 
         plate = Plate.builder()
                 .name("Shawarma")
@@ -64,7 +66,7 @@ class CreatePlateUseCaseTest {
         when(plateRepository.create(plate)).thenReturn(expectedPlate);
 
         // When
-        Plate result = plateUseCase.createPlate(plate, userId);
+        Plate result = plateUseCase.createPlate(plate, userId, userRole);
 
         // Then
         assertNotNull(result);
@@ -83,7 +85,7 @@ class CreatePlateUseCaseTest {
 
         // When & Then
         BusinessException exception = assertThrows(BusinessException.class,
-                () -> plateUseCase.createPlate(plate, userId));
+                () -> plateUseCase.createPlate(plate, userId, userRole));
 
         assertEquals(DomainErrorCode.RESTAURANT_NOT_FOUND.getCode(), exception.getCode());
         assertEquals(DomainErrorCode.RESTAURANT_NOT_FOUND.getMessage(), exception.getMessage());
@@ -100,7 +102,7 @@ class CreatePlateUseCaseTest {
 
         // When & Then
         BusinessException exception = assertThrows(BusinessException.class,
-                () -> plateUseCase.createPlate(plate, differentUserId));
+                () -> plateUseCase.createPlate(plate, differentUserId, userRole));
 
         assertEquals(DomainErrorCode.RESTAURANT_NOT_OWNER.getCode(), exception.getCode());
         assertEquals(DomainErrorCode.RESTAURANT_NOT_OWNER.getMessage(), exception.getMessage());
