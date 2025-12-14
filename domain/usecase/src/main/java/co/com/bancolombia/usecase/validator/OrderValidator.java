@@ -64,6 +64,40 @@ public class OrderValidator {
         }
     }
 
+    public static void validateOrderExists(Order order) {
+        if (order == null) {
+            throw new BusinessException(
+                    DomainErrorCode.ORDER_NOT_FOUND.getCode(),
+                    DomainErrorCode.ORDER_NOT_FOUND.getMessage()
+            );
+        }
+    }
+
+    public static void validateOrderCanBeAssigned(Order order) {
+        if (order.getStatus() != OrderStatus.PENDING) {
+            throw new BusinessException(
+                    DomainErrorCode.INVALID_ORDER_STATUS_TRANSITION.getCode(),
+                    DomainErrorCode.INVALID_ORDER_STATUS_TRANSITION.getMessage()
+            );
+        }
+
+        if (order.getEmployeeId() != null) {
+            throw new BusinessException(
+                    DomainErrorCode.ORDER_ALREADY_ASSIGNED.getCode(),
+                    DomainErrorCode.ORDER_ALREADY_ASSIGNED.getMessage()
+            );
+        }
+    }
+
+    public static void validateOrderBelongsToRestaurant(Order order, Long restaurantId) {
+        if (!order.getRestaurantId().equals(restaurantId)) {
+            throw new BusinessException(
+                    DomainErrorCode.INSUFFICIENT_PERMISSIONS.getCode(),
+                    DomainErrorCode.INSUFFICIENT_PERMISSIONS.getMessage()
+            );
+        }
+    }
+
     private static void validateItemsQuantity(List<OrderItem> items) {
         for (OrderItem item : items) {
             if (item.getQuantity() == null || item.getQuantity() <= 0) {

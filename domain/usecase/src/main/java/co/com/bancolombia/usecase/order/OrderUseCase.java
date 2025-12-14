@@ -73,4 +73,24 @@ public class OrderUseCase implements OrderService {
         Long restaurantId = userGateway.getEmployeeRestaurantId(employeeId, authToken);
         return orderRepository.findByStatusAndRestaurantId(status, restaurantId, page, size);
     }
+
+    @Override
+    public Order assignOrderToEmployee(Long orderId, Long employeeId, String userRole, String authToken) {
+        RoleValidator.validateEmployeeRole(userRole);
+        
+        Order order = orderRepository.findById(orderId);
+        OrderValidator.validateOrderExists(order);
+        OrderValidator.validateOrderCanBeAssigned(order);
+        
+        Long restaurantId = userGateway.getEmployeeRestaurantId(employeeId, authToken);
+        OrderValidator.validateOrderBelongsToRestaurant(order, restaurantId);
+        
+        Order updatedOrder = order.toBuilder()
+                .employeeId(employeeId)
+                .status(OrderStatus.IN_PREPARATION)
+                .updatedAt(LocalDateTime.now())
+                .build();
+        
+        return orderRepository.update(updatedOrder);
+    }
 }

@@ -1,9 +1,7 @@
-package co.com.bancolombia.model.order;
+package co.com.bancolombia.api.dto.response;
 
 import co.com.bancolombia.model.enums.OrderStatus;
-import co.com.bancolombia.model.orderitem.OrderItem;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -16,13 +14,12 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder(toBuilder = true)
-public class Order {
+public class OrderAssignedResponse {
     private Long id;
     private Long customerId;
     private Long restaurantId;
     private Long employeeId;
-    private List<OrderItem> items;
+    private List<OrderItemResponse> items;
     private OrderStatus status;
     private BigDecimal totalAmount;
     private LocalDateTime createdAt;

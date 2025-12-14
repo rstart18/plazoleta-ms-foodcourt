@@ -2,6 +2,7 @@ package co.com.bancolombia.api.rest.order;
 
 import co.com.bancolombia.api.config.JwtUserInterceptor;
 import co.com.bancolombia.api.dto.request.OrderRequest;
+import co.com.bancolombia.api.dto.response.ApiResponse;
 import co.com.bancolombia.api.dto.response.OrderResponse;
 import co.com.bancolombia.api.mapper.dto.OrderMapper;
 import co.com.bancolombia.model.order.Order;
@@ -23,7 +24,7 @@ public class OrderApiRest {
     private final OrderMapper orderMapper;
 
     @PostMapping
-    public ResponseEntity<OrderResponse> createOrder(
+    public ResponseEntity<ApiResponse<OrderResponse>> createOrder(
             @Valid @RequestBody OrderRequest orderRequest,
             HttpServletRequest request) {
 
@@ -33,6 +34,6 @@ public class OrderApiRest {
         Order createdOrder = orderService.createOrder(order, customerId, userRole);
         OrderResponse response = orderMapper.toResponseDTO(createdOrder);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.of(response));
     }
 }
