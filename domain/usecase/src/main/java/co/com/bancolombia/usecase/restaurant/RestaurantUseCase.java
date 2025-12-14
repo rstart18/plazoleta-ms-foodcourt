@@ -6,6 +6,7 @@ import co.com.bancolombia.model.page.PagedResult;
 import co.com.bancolombia.model.restaurant.Restaurant;
 import co.com.bancolombia.model.restaurant.gateways.RestaurantRepository;
 import co.com.bancolombia.model.user.gateways.UserGateway;
+import co.com.bancolombia.usecase.validator.RoleValidator;
 import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class RestaurantUseCase implements RestaurantService {
@@ -14,7 +15,9 @@ public class RestaurantUseCase implements RestaurantService {
     private final UserGateway userGateway;
 
     @Override
-    public Restaurant createRestaurant(Restaurant restaurant, String authToken) {
+    public Restaurant createRestaurant(Restaurant restaurant, String userRole) {
+        RoleValidator.validateAdminRole(userRole);
+        
         if (restaurantRepository.existsByNit(restaurant.getNit())) {
             throw new BusinessException(
                     DomainErrorCode.RESTAURANT_NIT_ALREADY_EXISTS.getCode(),
@@ -22,7 +25,7 @@ public class RestaurantUseCase implements RestaurantService {
             );
         }
 
-        if (!userGateway.hasOwnerRole(restaurant.getOwnerId(), authToken)) {
+        if (!userGateway.hasOwnerRole(restaurant.getOwnerId(), "Bearer token")) {
             throw new BusinessException(
                     DomainErrorCode.USER_NOT_OWNER.getCode(),
                     DomainErrorCode.USER_NOT_OWNER.getMessage()

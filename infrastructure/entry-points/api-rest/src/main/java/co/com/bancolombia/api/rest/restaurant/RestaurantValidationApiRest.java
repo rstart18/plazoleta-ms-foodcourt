@@ -1,13 +1,13 @@
 package co.com.bancolombia.api.rest.restaurant;
 
-import co.com.bancolombia.api.constants.SecurityConstants;
+import co.com.bancolombia.api.config.JwtUserInterceptor;
 import co.com.bancolombia.api.dto.response.ApiResponse;
 import co.com.bancolombia.api.dto.response.OwnerValidationResponse;
 import co.com.bancolombia.usecase.owner.OwnerService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,12 +21,13 @@ public class RestaurantValidationApiRest {
     private final OwnerService validateOwnerService;
 
     @GetMapping("/{restaurantId}/owner/{ownerId}")
-    @PreAuthorize(SecurityConstants.ROLE_OWNER)
     public ResponseEntity<ApiResponse<OwnerValidationResponse>> validateOwnerRestaurant(
             @PathVariable("restaurantId") Long restaurantId,
-            @PathVariable("ownerId") Long ownerId) {
+            @PathVariable("ownerId") Long ownerId,
+            HttpServletRequest request) {
 
-        boolean isOwner = validateOwnerService.validateOwnerRestaurant(restaurantId, ownerId);
+        String userRole = JwtUserInterceptor.getUserRole(request);
+        boolean isOwner = validateOwnerService.validateOwnerRestaurant(restaurantId, ownerId, userRole);
         OwnerValidationResponse response = new OwnerValidationResponse(isOwner);
 
         return ResponseEntity.ok(ApiResponse.of(response));

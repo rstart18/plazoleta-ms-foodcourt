@@ -1,5 +1,5 @@
 package co.com.bancolombia.api.rest.restaurant;
-import co.com.bancolombia.api.constants.SecurityConstants;
+import co.com.bancolombia.api.config.JwtUserInterceptor;
 import co.com.bancolombia.api.dto.request.CreateRestaurantRequest;
 import co.com.bancolombia.api.dto.response.ApiResponse;
 import co.com.bancolombia.api.dto.response.PageResponse;
@@ -9,12 +9,12 @@ import co.com.bancolombia.api.mapper.dto.RestaurantMapper;
 import co.com.bancolombia.model.page.PagedResult;
 import co.com.bancolombia.model.restaurant.Restaurant;
 import co.com.bancolombia.usecase.restaurant.RestaurantService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -43,13 +43,13 @@ public class RestaurantApiRest {
     }
 
     @PostMapping
-    @PreAuthorize(SecurityConstants.ROLE_ADMIN)
     public ResponseEntity<ApiResponse<RestaurantResponse>> createRestaurant(
             @Valid @RequestBody CreateRestaurantRequest request,
-            @RequestHeader("Authorization") String authToken) {
+            HttpServletRequest httpRequest) {
 
+        String userRole = JwtUserInterceptor.getUserRole(httpRequest);
         Restaurant restaurant = restaurantMapper.toModel(request);
-        Restaurant createdRestaurant = restaurantService.createRestaurant(restaurant, authToken);
+        Restaurant createdRestaurant = restaurantService.createRestaurant(restaurant, userRole);
         RestaurantResponse response = restaurantMapper.toResponse(createdRestaurant);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.of(response));

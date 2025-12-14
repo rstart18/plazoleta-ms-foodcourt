@@ -15,13 +15,16 @@ import java.util.Map;
 public class JwtUserInterceptor implements HandlerInterceptor {
 
     private static final String USER_ID_ATTRIBUTE = "userId";
+    private static final String USER_ROLE_ATTRIBUTE = "userRole";
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         String authHeader = request.getHeader("Authorization");
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             Long userId = extractUserIdFromToken(authHeader);
+            String userRole = extractUserRoleFromToken(authHeader);
             request.setAttribute(USER_ID_ATTRIBUTE, userId);
+            request.setAttribute(USER_ROLE_ATTRIBUTE, userRole);
         }
         return true;
     }
@@ -58,5 +61,26 @@ public class JwtUserInterceptor implements HandlerInterceptor {
 
     public static Long getUserId(HttpServletRequest request) {
         return (Long) request.getAttribute(USER_ID_ATTRIBUTE);
+    }
+
+    public static String getUserRole(HttpServletRequest request) {
+        return (String) request.getAttribute(USER_ROLE_ATTRIBUTE);
+    }
+
+    private String extractUserRoleFromToken(String authorizationHeader) {
+        try {
+            String token = authorizationHeader.replace("Bearer ", "");
+            String[] parts = token.split("\\.");
+            String payload = new String(Base64.getUrlDecoder().decode(parts[1]));
+            ObjectMapper mapper = new ObjectMapper();
+            Map<String, Object> claims = mapper.readValue(payload, Map.class);
+            String roleWithPrefix = (String) claims.get("roles");
+            return roleWithPrefix != null ? roleWithPrefix.replace("ROLE_", "") : null;
+        } catch (Exception e) {
+            throw new BusinessException(
+                    DomainErrorCode.INVALID_TOKEN.getCode(),
+                    "Error al procesar token JWT"
+            );
+        }
     }
 }

@@ -18,7 +18,8 @@ public enum DomainErrorCode {
     CUSTOMER_HAS_ACTIVE_ORDER("CUSTOMER_HAS_ACTIVE_ORDER", "Customer already has an active order"),
     ORDER_ITEMS_REQUIRED("ORDER_ITEMS_REQUIRED", "Order must contain at least one item"),
     ORDER_PLATES_DIFFERENT_RESTAURANTS("ORDER_PLATES_DIFFERENT_RESTAURANTS", "All plates in an order must be from the same restaurant"),
-    INVALID_ITEM_QUANTITY("INVALID_ITEM_QUANTITY", "Item quantity must be greater than zero");
+    INVALID_ITEM_QUANTITY("INVALID_ITEM_QUANTITY", "Item quantity must be greater than zero"),
+    INSUFFICIENT_PERMISSIONS("INSUFFICIENT_PERMISSIONS", "User does not have required permissions");
 
     private final String code;
     private final String message;

@@ -1,7 +1,6 @@
 package co.com.bancolombia.api.rest.plate;
 
 import co.com.bancolombia.api.config.JwtUserInterceptor;
-import co.com.bancolombia.api.constants.SecurityConstants;
 import co.com.bancolombia.api.dto.request.CreatePlateRequest;
 import co.com.bancolombia.api.dto.request.UpdatePlateRequest;
 import co.com.bancolombia.api.dto.response.ApiResponse;
@@ -19,7 +18,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -40,21 +38,20 @@ public class PlateApiRest {
     private final PlateMapper plateMapper;
 
     @PostMapping
-    @PreAuthorize(SecurityConstants.ROLE_OWNER)
     public ResponseEntity<ApiResponse<PlateResponse>> createPlate(
             @Valid @RequestBody CreatePlateRequest request,
             HttpServletRequest httpRequest) {
         Plate plate = plateMapper.toModel(request);
 
         Long userId = JwtUserInterceptor.getUserId(httpRequest);
-        Plate createdPlate = plateService.createPlate(plate, userId);
+        String userRole = JwtUserInterceptor.getUserRole(httpRequest);
+        Plate createdPlate = plateService.createPlate(plate, userId, userRole);
 
         PlateResponse response = plateMapper.toResponse(createdPlate);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.of(response));
     }
 
     @PatchMapping("/{plateId}")
-    @PreAuthorize(SecurityConstants.ROLE_OWNER)
     public ResponseEntity<ApiResponse<PlateResponse>> updatePlate(
             @PathVariable("plateId") Long plateId,
             @Valid @RequestBody UpdatePlateRequest request,
@@ -62,20 +59,21 @@ public class PlateApiRest {
 
         Plate plateUpdates = plateMapper.toModel(request);
         Long userId = JwtUserInterceptor.getUserId(httpRequest);
-        Plate updatedPlate = plateService.updatePlate(plateId, plateUpdates, userId);
+        String userRole = JwtUserInterceptor.getUserRole(httpRequest);
+        Plate updatedPlate = plateService.updatePlate(plateId, plateUpdates, userId, userRole);
 
         PlateResponse response = plateMapper.toResponse(updatedPlate);
         return ResponseEntity.ok(ApiResponse.of(response));
     }
 
     @PatchMapping("/{plateId}/status")
-    @PreAuthorize(SecurityConstants.ROLE_OWNER)
     public ResponseEntity<ApiResponse<PlateStatusResponse>> togglePlateStatus(
             @PathVariable("plateId") Long plateId,
             HttpServletRequest httpRequest) {
 
         Long userId = JwtUserInterceptor.getUserId(httpRequest);
-        Plate updatedPlate = plateService.togglePlateStatus(plateId, userId);
+        String userRole = JwtUserInterceptor.getUserRole(httpRequest);
+        Plate updatedPlate = plateService.togglePlateStatus(plateId, userId, userRole);
 
         PlateStatusResponse response = plateMapper.toStatusResponse(updatedPlate);
         return ResponseEntity.ok(ApiResponse.of(response));

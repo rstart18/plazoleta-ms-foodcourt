@@ -7,6 +7,7 @@ import co.com.bancolombia.model.orderitem.OrderItem;
 import co.com.bancolombia.model.plate.Plate;
 import co.com.bancolombia.model.plate.gateways.PlateRepository;
 import co.com.bancolombia.usecase.validator.OrderValidator;
+import co.com.bancolombia.usecase.validator.RoleValidator;
 import lombok.RequiredArgsConstructor;
 
 import java.math.BigDecimal;
@@ -20,7 +21,8 @@ public class OrderUseCase implements OrderService {
     private final PlateRepository plateRepository;
 
     @Override
-    public Order createOrder(Order order, Long customerId) {
+    public Order createOrder(Order order, Long customerId, String userRole) {
+        RoleValidator.validateClientRole(userRole);
         OrderValidator.validateOrderStructure(order);
         OrderValidator.validateCustomerHasNoActiveOrders(customerId, orderRepository);
         OrderValidator.validatePlatesExistAndSameRestaurant(order, plateRepository);

@@ -7,6 +7,7 @@ import co.com.bancolombia.model.plate.Plate;
 import co.com.bancolombia.model.plate.gateways.PlateRepository;
 import co.com.bancolombia.model.restaurant.Restaurant;
 import co.com.bancolombia.model.restaurant.gateways.RestaurantRepository;
+import co.com.bancolombia.usecase.validator.RoleValidator;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -16,7 +17,8 @@ public class PlateUseCase implements PlateService {
     private final RestaurantRepository restaurantRepository;
 
     @Override
-    public Plate createPlate(Plate plate, Long userId) {
+    public Plate createPlate(Plate plate, Long userId, String userRole) {
+        RoleValidator.validateOwnerRole(userRole);
 
         Restaurant restaurant = restaurantRepository.findById(plate.getRestaurantId());
         if (restaurant == null) {
@@ -37,7 +39,9 @@ public class PlateUseCase implements PlateService {
     }
 
     @Override
-    public Plate updatePlate(Long plateId, Plate plateUpdates, Long userId) {
+    public Plate updatePlate(Long plateId, Plate plateUpdates, Long userId, String userRole) {
+        RoleValidator.validateOwnerRole(userRole);
+        
         Plate existingPlate = plateRepository.findById(plateId);
         if (existingPlate == null) {
             throw new BusinessException(
@@ -63,7 +67,9 @@ public class PlateUseCase implements PlateService {
     }
 
     @Override
-    public Plate togglePlateStatus(Long plateId, Long userId) {
+    public Plate togglePlateStatus(Long plateId, Long userId, String userRole) {
+        RoleValidator.validateOwnerRole(userRole);
+        
         Plate existingPlate = plateRepository.findById(plateId);
         if (existingPlate == null) {
             throw new BusinessException(

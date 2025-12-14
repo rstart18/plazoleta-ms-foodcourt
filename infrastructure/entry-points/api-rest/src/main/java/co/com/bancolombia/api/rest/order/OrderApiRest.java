@@ -1,7 +1,6 @@
 package co.com.bancolombia.api.rest.order;
 
 import co.com.bancolombia.api.config.JwtUserInterceptor;
-import co.com.bancolombia.api.constants.SecurityConstants;
 import co.com.bancolombia.api.dto.request.OrderRequest;
 import co.com.bancolombia.api.dto.response.OrderResponse;
 import co.com.bancolombia.api.mapper.dto.OrderMapper;
@@ -12,7 +11,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -24,15 +22,15 @@ public class OrderApiRest {
     private final OrderService orderService;
     private final OrderMapper orderMapper;
 
-    @PreAuthorize(SecurityConstants.ROLE_CLIENT)
     @PostMapping
     public ResponseEntity<OrderResponse> createOrder(
             @Valid @RequestBody OrderRequest orderRequest,
             HttpServletRequest request) {
 
         Long customerId = JwtUserInterceptor.getUserId(request);
+        String userRole = JwtUserInterceptor.getUserRole(request);
         Order order = orderMapper.toModel(orderRequest);
-        Order createdOrder = orderService.createOrder(order, customerId);
+        Order createdOrder = orderService.createOrder(order, customerId, userRole);
         OrderResponse response = orderMapper.toResponseDTO(createdOrder);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
