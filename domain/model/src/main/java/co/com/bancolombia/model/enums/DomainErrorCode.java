@@ -14,7 +14,11 @@ public enum DomainErrorCode {
     INVALID_NIT_FORMAT("INVALID_NIT_FORMAT", "El NIT debe contener únicamente números"),
     RESTAURANT_NOT_OWNER("RESTAURANT_NOT_OWNER", "El usuario no es propietario del restaurante"),
     USER_NOT_OWNER("USER_NOT_OWNER", "El usuario no tiene rol de propietario"),
-    PLATE_NOT_FOUND("PLATE_NOT_FOUND", "Plato no encontrado");
+    PLATE_NOT_FOUND("PLATE_NOT_FOUND", "Plato no encontrado"),
+    CUSTOMER_HAS_ACTIVE_ORDER("CUSTOMER_HAS_ACTIVE_ORDER", "Customer already has an active order"),
+    ORDER_ITEMS_REQUIRED("ORDER_ITEMS_REQUIRED", "Order must contain at least one item"),
+    ORDER_PLATES_DIFFERENT_RESTAURANTS("ORDER_PLATES_DIFFERENT_RESTAURANTS", "All plates in an order must be from the same restaurant"),
+    INVALID_ITEM_QUANTITY("INVALID_ITEM_QUANTITY", "Item quantity must be greater than zero");
 
     private final String code;
     private final String message;

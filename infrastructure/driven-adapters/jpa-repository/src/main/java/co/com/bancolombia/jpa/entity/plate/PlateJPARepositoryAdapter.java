@@ -109,5 +109,4 @@ public class PlateJPARepositoryAdapter extends AdapterOperations<Plate, PlateEnt
                 entityPage.getTotalPages()
         );
     }
-
 }

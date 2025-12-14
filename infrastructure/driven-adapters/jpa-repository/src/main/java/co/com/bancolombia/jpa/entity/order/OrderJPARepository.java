@@ -1,0 +1,16 @@
+package co.com.bancolombia.jpa.entity.order;
+
+import co.com.bancolombia.model.enums.OrderStatus;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
+import org.springframework.data.repository.query.QueryByExampleExecutor;
+
+import java.util.List;
+
+public interface OrderJPARepository extends CrudRepository<OrderEntity, Long>, QueryByExampleExecutor<OrderEntity> {
+
+    @Query("SELECT o FROM OrderEntity o WHERE o.customerId = :customerId AND o.status IN :statuses")
+    List<OrderEntity> findByCustomerIdAndStatusIn(@Param("customerId") Long customerId,
+                                                  @Param("statuses") List<OrderStatus> statuses);
+}
