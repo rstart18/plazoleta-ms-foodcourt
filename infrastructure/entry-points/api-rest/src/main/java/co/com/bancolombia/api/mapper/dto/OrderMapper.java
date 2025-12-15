@@ -15,8 +15,10 @@ import org.mapstruct.Mapping;
 public interface OrderMapper {
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "customerId", ignore = true)
+    @Mapping(target = "clientId", ignore = true)
+    @Mapping(target = "clientEmail", ignore = true)
     @Mapping(target = "employeeId", ignore = true)
+    @Mapping(target = "employeeEmail", ignore = true)
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "totalAmount", ignore = true)
     @Mapping(target = "createdAt", ignore = true)

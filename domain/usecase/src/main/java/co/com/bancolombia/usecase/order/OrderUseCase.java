@@ -7,6 +7,7 @@ import co.com.bancolombia.model.orderitem.OrderItem;
 import co.com.bancolombia.model.page.PagedResult;
 import co.com.bancolombia.model.plate.Plate;
 import co.com.bancolombia.model.plate.gateways.PlateRepository;
+import co.com.bancolombia.model.traceability.gateways.TraceabilityGateway;
 import co.com.bancolombia.model.user.gateways.UserGateway;
 import co.com.bancolombia.usecase.validator.OrderValidator;
 import co.com.bancolombia.usecase.validator.RoleValidator;
@@ -22,25 +23,39 @@ public class OrderUseCase implements OrderService {
     private final OrderRepository orderRepository;
     private final PlateRepository plateRepository;
     private final UserGateway userGateway;
+    private final TraceabilityGateway traceabilityGateway;
 
     @Override
-    public Order createOrder(Order order, Long customerId, String userRole) {
+    public Order createOrder(Order order, Long clientId, String clientEmail, String userRole) {
         RoleValidator.validateClientRole(userRole);
         OrderValidator.validateOrderStructure(order);
-        OrderValidator.validateCustomerHasNoActiveOrders(customerId, orderRepository);
+        OrderValidator.validateClientHasNoActiveOrders(clientId, orderRepository);
         OrderValidator.validatePlatesExistAndSameRestaurant(order, plateRepository);
 
         List<OrderItem> enrichedItems = enrichOrderItems(order.getItems());
 
         Order orderToCreate = order.toBuilder()
-                .customerId(customerId)
+                .clientId(clientId)
+                .clientEmail(clientEmail)
                 .status(OrderStatus.PENDING)
                 .items(enrichedItems)
                 .totalAmount(calculateTotalAmount(enrichedItems))
                 .createdAt(LocalDateTime.now())
                 .build();
 
-        return orderRepository.create(orderToCreate);
+        Order createdOrder = orderRepository.create(orderToCreate);
+        
+        traceabilityGateway.sendOrderStatusChange(
+                createdOrder.getId(),
+                createdOrder.getClientId(),
+                createdOrder.getClientEmail(),
+                null,
+                OrderStatus.PENDING,
+                null,
+                null
+        );
+
+        return createdOrder;
     }
 
     private List<OrderItem> enrichOrderItems(List<OrderItem> items) {
@@ -75,7 +90,7 @@ public class OrderUseCase implements OrderService {
     }
 
     @Override
-    public Order assignOrderToEmployee(Long orderId, Long employeeId, String userRole, String authToken) {
+    public Order assignOrderToEmployee(Long orderId, Long employeeId, String employeeEmail, String userRole, String authToken) {
         RoleValidator.validateEmployeeRole(userRole);
         
         Order order = orderRepository.findById(orderId);
@@ -87,10 +102,23 @@ public class OrderUseCase implements OrderService {
         
         Order updatedOrder = order.toBuilder()
                 .employeeId(employeeId)
+                .employeeEmail(employeeEmail)
                 .status(OrderStatus.IN_PREPARATION)
                 .updatedAt(LocalDateTime.now())
                 .build();
         
-        return orderRepository.update(updatedOrder);
+        Order result = orderRepository.update(updatedOrder);
+        
+        traceabilityGateway.sendOrderStatusChange(
+                order.getId(),
+                order.getClientId(),
+                order.getClientEmail(),
+                order.getStatus(),
+                OrderStatus.IN_PREPARATION,
+                employeeId,
+                employeeEmail
+        );
+        
+        return result;
     }
 }

@@ -25,14 +25,14 @@ public class OrderValidator {
         validateItemsQuantity(order.getItems());
     }
 
-    public static void validateCustomerHasNoActiveOrders(Long customerId, OrderRepository orderRepository) {
+    public static void validateClientHasNoActiveOrders(Long clientId, OrderRepository orderRepository) {
         List<OrderStatus> activeStatuses = Arrays.asList(
                 OrderStatus.PENDING,
                 OrderStatus.IN_PREPARATION,
                 OrderStatus.READY
         );
 
-        List<Order> activeOrders = orderRepository.findByCustomerIdAndStatusIn(customerId, activeStatuses);
+        List<Order> activeOrders = orderRepository.findByClientIdAndStatusIn(clientId, activeStatuses);
 
         if (!activeOrders.isEmpty()) {
             throw new BusinessException(

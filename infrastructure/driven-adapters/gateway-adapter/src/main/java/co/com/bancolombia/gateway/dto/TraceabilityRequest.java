@@ -1,28 +1,26 @@
-package co.com.bancolombia.api.dto.response;
+package co.com.bancolombia.gateway.dto;
 
 import co.com.bancolombia.model.enums.OrderStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class OrderResponse {
-    private Long id;
+@ToString
+public class TraceabilityRequest {
+    private Long orderId;
     private Long clientId;
     private String clientEmail;
-    private Long restaurantId;
+    private OrderStatus previousStatus;
+    private OrderStatus newStatus;
     private Long employeeId;
     private String employeeEmail;
-    private OrderStatus status;
-    private Double totalAmount;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-    private List<OrderItemResponse> items;
+    private LocalDateTime timestamp;
 }

@@ -16,9 +16,11 @@ import java.util.List;
 @AllArgsConstructor
 public class OrderAssignedResponse {
     private Long id;
-    private Long customerId;
+    private Long clientId;
+    private String clientEmail;
     private Long restaurantId;
     private Long employeeId;
+    private String employeeEmail;
     private List<OrderItemResponse> items;
     private OrderStatus status;
     private BigDecimal totalAmount;

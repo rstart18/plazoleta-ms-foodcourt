@@ -1,6 +1,6 @@
 package co.com.bancolombia.jpa.entity.order;
 
-import co.com.bancolombia.jpa.orderitem.OrderItemEntity;
+import co.com.bancolombia.jpa.entity.orderitem.OrderItemEntity;
 import co.com.bancolombia.model.enums.OrderStatus;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -36,14 +36,20 @@ public class OrderEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "customer_id", nullable = false)
-    private Long customerId;
+    @Column(name = "client_id", nullable = false)
+    private Long clientId;
+
+    @Column(name = "client_email", nullable = false)
+    private String clientEmail;
 
     @Column(name = "restaurant_id", nullable = false)
     private Long restaurantId;
 
     @Column(name = "employee_id")
     private Long employeeId;
+
+    @Column(name = "employee_email")
+    private String employeeEmail;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

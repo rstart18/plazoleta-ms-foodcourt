@@ -28,10 +28,11 @@ public class OrderApiRest {
             @Valid @RequestBody OrderRequest orderRequest,
             HttpServletRequest request) {
 
-        Long customerId = JwtUserInterceptor.getUserId(request);
+        Long clientId = JwtUserInterceptor.getUserId(request);
+        String clientEmail = JwtUserInterceptor.getUserEmail(request);
         String userRole = JwtUserInterceptor.getUserRole(request);
         Order order = orderMapper.toModel(orderRequest);
-        Order createdOrder = orderService.createOrder(order, customerId, userRole);
+        Order createdOrder = orderService.createOrder(order, clientId, clientEmail, userRole);
         OrderResponse response = orderMapper.toResponseDTO(createdOrder);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.of(response));

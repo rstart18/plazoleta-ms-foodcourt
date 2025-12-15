@@ -1,7 +1,7 @@
 package co.com.bancolombia.jpa.entity.order;
 
 import co.com.bancolombia.jpa.helper.AdapterOperations;
-import co.com.bancolombia.jpa.orderitem.OrderItemEntity;
+import co.com.bancolombia.jpa.entity.orderitem.OrderItemEntity;
 import co.com.bancolombia.model.enums.OrderStatus;
 import co.com.bancolombia.model.order.Order;
 import co.com.bancolombia.model.order.gateway.OrderRepository;
@@ -14,7 +14,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Repository
 public class OrderJPARepositoryAdapter extends AdapterOperations<Order, OrderEntity, Long, OrderJPARepository>
@@ -58,8 +57,8 @@ public class OrderJPARepositoryAdapter extends AdapterOperations<Order, OrderEnt
     }
 
     @Override
-    public List<Order> findByCustomerIdAndStatusIn(Long customerId, List<OrderStatus> statuses) {
-        return repository.findByCustomerIdAndStatusIn(customerId, statuses)
+    public List<Order> findByClientIdAndStatusIn(Long clientId, List<OrderStatus> statuses) {
+        return repository.findByClientIdAndStatusIn(clientId, statuses)
                 .stream()
                 .map(this::mapToOrder)
                 .toList();

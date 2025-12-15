@@ -37,3 +37,5 @@ cors:
 services:
   user:
     url: http://localhost:8080
+  traceability:
+    url: http://localhost:8082

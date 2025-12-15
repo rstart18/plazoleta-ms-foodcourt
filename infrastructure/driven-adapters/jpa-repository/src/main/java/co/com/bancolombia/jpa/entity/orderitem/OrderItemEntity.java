@@ -1,4 +1,4 @@
-package co.com.bancolombia.jpa.orderitem;
+package co.com.bancolombia.jpa.entity.orderitem;
 
 import co.com.bancolombia.jpa.entity.order.OrderEntity;
 import jakarta.persistence.Column;

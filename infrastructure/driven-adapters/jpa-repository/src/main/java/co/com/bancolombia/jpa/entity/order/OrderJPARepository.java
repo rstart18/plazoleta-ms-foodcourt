@@ -12,9 +12,9 @@ import java.util.List;
 
 public interface OrderJPARepository extends CrudRepository<OrderEntity, Long>, QueryByExampleExecutor<OrderEntity> {
 
-    @Query("SELECT o FROM OrderEntity o WHERE o.customerId = :customerId AND o.status IN :statuses")
-    List<OrderEntity> findByCustomerIdAndStatusIn(@Param("customerId") Long customerId,
-                                                  @Param("statuses") List<OrderStatus> statuses);
+    @Query("SELECT o FROM OrderEntity o WHERE o.clientId = :clientId AND o.status IN :statuses")
+    List<OrderEntity> findByClientIdAndStatusIn(@Param("clientId") Long clientId,
+                                               @Param("statuses") List<OrderStatus> statuses);
 
     @Query("SELECT o FROM OrderEntity o WHERE o.status = :status AND o.restaurantId = :restaurantId")
     Page<OrderEntity> findByStatusAndRestaurantId(@Param("status") OrderStatus status,

@@ -21,7 +21,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 @Configuration
-@EnableWebSecurity(debug = true)
+@EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
@@ -53,19 +53,12 @@ public class SecurityConfig {
         JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
         converter.setJwtGrantedAuthoritiesConverter(jwt -> {
             String roles = jwt.getClaimAsString("roles");
-
-            Collection<GrantedAuthority> authorities = Collections.emptyList();
-
             if (roles != null && !roles.isEmpty()) {
-                String authority = roles.startsWith("ROLE_")
-                        ? "ROLE_" + roles.substring(5)
-                        : roles;
-                authorities = Collections.singletonList(new SimpleGrantedAuthority(authority));
+                String authority = roles.startsWith("ROLE_") ? roles : "ROLE_" + roles;
+                return Collections.singletonList(new SimpleGrantedAuthority(authority));
             }
-
-            return authorities;
+            return Collections.emptyList();
         });
-
         return converter;
     }
 

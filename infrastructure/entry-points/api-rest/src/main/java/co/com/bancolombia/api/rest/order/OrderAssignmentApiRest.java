@@ -1,5 +1,6 @@
 package co.com.bancolombia.api.rest.order;
 
+import co.com.bancolombia.api.config.JwtUserInterceptor;
 import co.com.bancolombia.api.dto.request.AssignOrderRequest;
 import co.com.bancolombia.api.dto.response.ApiResponse;
 import co.com.bancolombia.api.dto.response.OrderResponse;
@@ -24,13 +25,15 @@ public class OrderAssignmentApiRest {
             @RequestBody AssignOrderRequest request,
             HttpServletRequest httpRequest) {
         
-        Long employeeId = (Long) httpRequest.getAttribute("userId");
-        String userRole = (String) httpRequest.getAttribute("userRole");
+        Long employeeId = JwtUserInterceptor.getUserId(httpRequest);
+        String employeeEmail = JwtUserInterceptor.getUserEmail(httpRequest);
+        String userRole = JwtUserInterceptor.getUserRole(httpRequest);
         String authToken = httpRequest.getHeader("Authorization");
         
         Order assignedOrder = orderService.assignOrderToEmployee(
                 request.getOrderId(), 
                 employeeId, 
+                employeeEmail,
                 userRole, 
                 authToken
         );

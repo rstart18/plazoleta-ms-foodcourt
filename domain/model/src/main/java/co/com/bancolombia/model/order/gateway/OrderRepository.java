@@ -9,7 +9,7 @@ import java.util.List;
 public interface OrderRepository {
     Order create(Order order);
     Order findById(Long id);
-    List<Order> findByCustomerIdAndStatusIn(Long customerId, List<OrderStatus> statuses);
+    List<Order> findByClientIdAndStatusIn(Long clientId, List<OrderStatus> statuses);
     PagedResult<Order> findByStatusAndRestaurantId(OrderStatus status, Long restaurantId, int page, int size);
     Order update(Order order);
 }
