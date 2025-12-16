@@ -107,6 +107,24 @@ public class OrderValidator {
         }
     }
 
+    public static void validateOrderCanBeDelivered(Order order) {
+        if (order.getStatus() != OrderStatus.READY) {
+            throw new BusinessException(
+                    DomainErrorCode.INVALID_ORDER_STATUS_TRANSITION.getCode(),
+                    DomainErrorCode.INVALID_ORDER_STATUS_TRANSITION.getMessage()
+            );
+        }
+    }
+
+    public static void validateSecurityPin(Order order, String providedPin) {
+        if (order.getSecurityPin() == null || !order.getSecurityPin().equals(providedPin)) {
+            throw new BusinessException(
+                    DomainErrorCode.INVALID_SECURITY_PIN.getCode(),
+                    DomainErrorCode.INVALID_SECURITY_PIN.getMessage()
+            );
+        }
+    }
+
     private static void validateItemsQuantity(List<OrderItem> items) {
         for (OrderItem item : items) {
             if (item.getQuantity() == null || item.getQuantity() <= 0) {

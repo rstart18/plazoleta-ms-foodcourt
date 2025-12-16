@@ -161,6 +161,38 @@ public class OrderUseCase implements OrderService {
         return result;
     }
     
+    @Override
+    public Order deliverOrder(Long orderId, String securityPin, Long employeeId, String userRole, String authToken) {
+        RoleValidator.validateEmployeeRole(userRole);
+        
+        Order order = orderRepository.findById(orderId);
+        OrderValidator.validateOrderExists(order);
+        OrderValidator.validateOrderCanBeDelivered(order);
+        OrderValidator.validateSecurityPin(order, securityPin);
+        
+        Long restaurantId = userGateway.getEmployeeRestaurantId(employeeId, authToken);
+        OrderValidator.validateOrderBelongsToRestaurant(order, restaurantId);
+        
+        Order updatedOrder = order.toBuilder()
+                .status(OrderStatus.DELIVERED)
+                .updatedAt(LocalDateTime.now())
+                .build();
+        
+        Order result = orderRepository.update(updatedOrder);
+        
+        traceabilityGateway.sendOrderStatusChange(
+                order.getId(),
+                order.getClientId(),
+                order.getClientEmail(),
+                order.getStatus(),
+                OrderStatus.DELIVERED,
+                employeeId,
+                order.getEmployeeEmail()
+        );
+        
+        return result;
+    }
+    
     private String generateSecurityPin() {
         return String.format("%04d", (int) (Math.random() * 10000));
     }

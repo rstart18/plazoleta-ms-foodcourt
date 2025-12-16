@@ -22,7 +22,8 @@ public enum DomainErrorCode {
     INSUFFICIENT_PERMISSIONS("INSUFFICIENT_PERMISSIONS", "User does not have required permissions"),
     ORDER_NOT_FOUND("ORDER_NOT_FOUND", "Order not found"),
     ORDER_ALREADY_ASSIGNED("ORDER_ALREADY_ASSIGNED", "Order is already assigned to an employee"),
-    INVALID_ORDER_STATUS_TRANSITION("INVALID_ORDER_STATUS_TRANSITION", "Invalid order status transition");
+    INVALID_ORDER_STATUS_TRANSITION("INVALID_ORDER_STATUS_TRANSITION", "Invalid order status transition"),
+    INVALID_SECURITY_PIN("INVALID_SECURITY_PIN", "Invalid security PIN");
 
     private final String code;
     private final String message;

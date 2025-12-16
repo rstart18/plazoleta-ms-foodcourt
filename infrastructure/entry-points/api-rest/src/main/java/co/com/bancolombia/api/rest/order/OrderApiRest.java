@@ -2,6 +2,7 @@ package co.com.bancolombia.api.rest.order;
 
 import co.com.bancolombia.api.config.JwtUserInterceptor;
 import co.com.bancolombia.api.dto.request.AssignOrderRequest;
+import co.com.bancolombia.api.dto.request.DeliverOrderRequest;
 import co.com.bancolombia.api.dto.request.OrderReadyRequest;
 import co.com.bancolombia.api.dto.request.OrderRequest;
 import co.com.bancolombia.api.dto.response.ApiResponse;
@@ -75,6 +76,27 @@ public class OrderApiRest {
         Order order = orderService.markOrderAsReady(request.getOrderId(), employeeId, userRole, authToken);
         OrderResponse orderResponse = orderMapper.toResponseDTO(order);
 
+        return ResponseEntity.ok(ApiResponse.of(orderResponse));
+    }
+
+    @PutMapping("/deliver")
+    public ResponseEntity<ApiResponse<OrderResponse>> deliverOrder(
+            @RequestBody DeliverOrderRequest request,
+            HttpServletRequest httpRequest) {
+
+        Long employeeId = JwtUserInterceptor.getUserId(httpRequest);
+        String userRole = JwtUserInterceptor.getUserRole(httpRequest);
+        String authToken = httpRequest.getHeader("Authorization");
+
+        Order order = orderService.deliverOrder(
+                request.getOrderId(),
+                request.getSecurityPin(),
+                employeeId,
+                userRole,
+                authToken
+        );
+
+        OrderResponse orderResponse = orderMapper.toResponseDTO(order);
         return ResponseEntity.ok(ApiResponse.of(orderResponse));
     }
 }

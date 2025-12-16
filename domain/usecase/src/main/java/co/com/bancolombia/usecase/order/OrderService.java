@@ -9,4 +9,5 @@ public interface OrderService {
     PagedResult<Order> listOrdersByStatus(OrderStatus status, int page, int size, Long employeeId, String userRole, String authToken);
     Order assignOrderToEmployee(Long orderId, Long employeeId, String employeeEmail, String userRole, String authToken);
     Order markOrderAsReady(Long orderId, Long employeeId, String userRole, String authToken);
+    Order deliverOrder(Long orderId, String securityPin, Long employeeId, String userRole, String authToken);
 }
