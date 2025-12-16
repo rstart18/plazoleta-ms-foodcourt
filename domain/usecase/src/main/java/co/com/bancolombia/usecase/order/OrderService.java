@@ -10,4 +10,5 @@ public interface OrderService {
     Order assignOrderToEmployee(Long orderId, Long employeeId, String employeeEmail, String userRole, String authToken);
     Order markOrderAsReady(Long orderId, Long employeeId, String userRole, String authToken);
     Order deliverOrder(Long orderId, String securityPin, Long employeeId, String userRole, String authToken);
+    Order cancelOrder(Long orderId, Long clientId, String userRole);
 }

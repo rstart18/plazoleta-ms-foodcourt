@@ -2,6 +2,7 @@ package co.com.bancolombia.api.rest.order;
 
 import co.com.bancolombia.api.config.JwtUserInterceptor;
 import co.com.bancolombia.api.dto.request.AssignOrderRequest;
+import co.com.bancolombia.api.dto.request.CancelOrderRequest;
 import co.com.bancolombia.api.dto.request.DeliverOrderRequest;
 import co.com.bancolombia.api.dto.request.OrderReadyRequest;
 import co.com.bancolombia.api.dto.request.OrderRequest;
@@ -97,6 +98,20 @@ public class OrderApiRest {
         );
 
         OrderResponse orderResponse = orderMapper.toResponseDTO(order);
+        return ResponseEntity.ok(ApiResponse.of(orderResponse));
+    }
+
+    @PutMapping("/cancel")
+    public ResponseEntity<ApiResponse<OrderResponse>> cancelOrder(
+            @Valid @RequestBody CancelOrderRequest request,
+            HttpServletRequest httpRequest) {
+
+        Long clientId = JwtUserInterceptor.getUserId(httpRequest);
+        String userRole = JwtUserInterceptor.getUserRole(httpRequest);
+
+        Order order = orderService.cancelOrder(request.getOrderId(), clientId, userRole);
+        OrderResponse orderResponse = orderMapper.toResponseDTO(order);
+
         return ResponseEntity.ok(ApiResponse.of(orderResponse));
     }
 }

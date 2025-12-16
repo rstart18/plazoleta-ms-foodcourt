@@ -125,6 +125,24 @@ public class OrderValidator {
         }
     }
 
+    public static void validateOrderBelongsToClient(Order order, Long clientId) {
+        if (!order.getClientId().equals(clientId)) {
+            throw new BusinessException(
+                    DomainErrorCode.INSUFFICIENT_PERMISSIONS.getCode(),
+                    DomainErrorCode.INSUFFICIENT_PERMISSIONS.getMessage()
+            );
+        }
+    }
+
+    public static void validateOrderCanBeCancelled(Order order) {
+        if (order.getStatus() != OrderStatus.PENDING) {
+            throw new BusinessException(
+                    DomainErrorCode.ORDER_CANNOT_BE_CANCELLED.getCode(),
+                    DomainErrorCode.ORDER_CANNOT_BE_CANCELLED.getMessage()
+            );
+        }
+    }
+
     private static void validateItemsQuantity(List<OrderItem> items) {
         for (OrderItem item : items) {
             if (item.getQuantity() == null || item.getQuantity() <= 0) {

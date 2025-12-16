@@ -193,6 +193,35 @@ public class OrderUseCase implements OrderService {
         return result;
     }
     
+    @Override
+    public Order cancelOrder(Long orderId, Long clientId, String userRole) {
+        RoleValidator.validateClientRole(userRole);
+        
+        Order order = orderRepository.findById(orderId);
+        OrderValidator.validateOrderExists(order);
+        OrderValidator.validateOrderBelongsToClient(order, clientId);
+        OrderValidator.validateOrderCanBeCancelled(order);
+        
+        Order updatedOrder = order.toBuilder()
+                .status(OrderStatus.CANCELLED)
+                .updatedAt(LocalDateTime.now())
+                .build();
+        
+        Order result = orderRepository.update(updatedOrder);
+        
+        traceabilityGateway.sendOrderStatusChange(
+                order.getId(),
+                order.getClientId(),
+                order.getClientEmail(),
+                order.getStatus(),
+                OrderStatus.CANCELLED,
+                null,
+                null
+        );
+        
+        return result;
+    }
+    
     private String generateSecurityPin() {
         return String.format("%04d", (int) (Math.random() * 10000));
     }

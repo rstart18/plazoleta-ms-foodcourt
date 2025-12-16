@@ -23,7 +23,8 @@ public enum DomainErrorCode {
     ORDER_NOT_FOUND("ORDER_NOT_FOUND", "Order not found"),
     ORDER_ALREADY_ASSIGNED("ORDER_ALREADY_ASSIGNED", "Order is already assigned to an employee"),
     INVALID_ORDER_STATUS_TRANSITION("INVALID_ORDER_STATUS_TRANSITION", "Invalid order status transition"),
-    INVALID_SECURITY_PIN("INVALID_SECURITY_PIN", "Invalid security PIN");
+    INVALID_SECURITY_PIN("INVALID_SECURITY_PIN", "Invalid security PIN"),
+    ORDER_CANNOT_BE_CANCELLED("ORDER_CANNOT_BE_CANCELLED", "Lo sentimos, tu pedido ya está en preparación y no puede cancelarse");
 
     private final String code;
     private final String message;
