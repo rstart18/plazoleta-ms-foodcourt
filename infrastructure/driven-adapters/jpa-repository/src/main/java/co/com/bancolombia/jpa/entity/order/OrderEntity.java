@@ -42,6 +42,9 @@ public class OrderEntity {
     @Column(name = "client_email", nullable = false)
     private String clientEmail;
 
+    @Column(name = "client_phone", nullable = false)
+    private String clientPhone;
+
     @Column(name = "restaurant_id", nullable = false)
     private Long restaurantId;
 
@@ -57,6 +60,9 @@ public class OrderEntity {
 
     @Column(name = "total_amount", nullable = false)
     private BigDecimal totalAmount;
+
+    @Column(name = "security_pin")
+    private String securityPin;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;

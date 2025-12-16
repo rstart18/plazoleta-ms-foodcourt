@@ -98,6 +98,15 @@ public class OrderValidator {
         }
     }
 
+    public static void validateOrderCanBeMarkedAsReady(Order order) {
+        if (order.getStatus() != OrderStatus.IN_PREPARATION) {
+            throw new BusinessException(
+                    DomainErrorCode.INVALID_ORDER_STATUS_TRANSITION.getCode(),
+                    DomainErrorCode.INVALID_ORDER_STATUS_TRANSITION.getMessage()
+            );
+        }
+    }
+
     private static void validateItemsQuantity(List<OrderItem> items) {
         for (OrderItem item : items) {
             if (item.getQuantity() == null || item.getQuantity() <= 0) {

@@ -17,6 +17,7 @@ public class JwtUserInterceptor implements HandlerInterceptor {
     private static final String USER_ID_ATTRIBUTE = "userId";
     private static final String USER_ROLE_ATTRIBUTE = "userRole";
     private static final String USER_EMAIL_ATTRIBUTE = "userEmail";
+    private static final String USER_PHONE_ATTRIBUTE = "userPhone";
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
@@ -25,9 +26,11 @@ public class JwtUserInterceptor implements HandlerInterceptor {
             Long userId = extractUserIdFromToken(authHeader);
             String userRole = extractUserRoleFromToken(authHeader);
             String userEmail = extractUserEmailFromToken(authHeader);
+            String userPhone = extractUserPhoneFromToken(authHeader);
             request.setAttribute(USER_ID_ATTRIBUTE, userId);
             request.setAttribute(USER_ROLE_ATTRIBUTE, userRole);
             request.setAttribute(USER_EMAIL_ATTRIBUTE, userEmail);
+            request.setAttribute(USER_PHONE_ATTRIBUTE, userPhone);
         }
         return true;
     }
@@ -99,6 +102,26 @@ public class JwtUserInterceptor implements HandlerInterceptor {
             ObjectMapper mapper = new ObjectMapper();
             Map<String, Object> claims = mapper.readValue(payload, Map.class);
             return (String) claims.get("sub");
+        } catch (Exception e) {
+            throw new BusinessException(
+                    DomainErrorCode.INVALID_TOKEN.getCode(),
+                    "Error al procesar token JWT"
+            );
+        }
+    }
+
+    public static String getUserPhone(HttpServletRequest request) {
+        return (String) request.getAttribute(USER_PHONE_ATTRIBUTE);
+    }
+
+    private String extractUserPhoneFromToken(String authorizationHeader) {
+        try {
+            String token = authorizationHeader.replace("Bearer ", "");
+            String[] parts = token.split("\\.");
+            String payload = new String(Base64.getUrlDecoder().decode(parts[1]));
+            ObjectMapper mapper = new ObjectMapper();
+            Map<String, Object> claims = mapper.readValue(payload, Map.class);
+            return (String) claims.get("phone");
         } catch (Exception e) {
             throw new BusinessException(
                     DomainErrorCode.INVALID_TOKEN.getCode(),

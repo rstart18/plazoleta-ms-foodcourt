@@ -9,6 +9,7 @@ import co.com.bancolombia.model.plate.Plate;
 import co.com.bancolombia.model.plate.gateways.PlateRepository;
 import co.com.bancolombia.model.traceability.gateways.TraceabilityGateway;
 import co.com.bancolombia.model.user.gateways.UserGateway;
+import co.com.bancolombia.model.notification.gateways.NotificationGateway;
 import co.com.bancolombia.usecase.validator.OrderValidator;
 import co.com.bancolombia.usecase.validator.RoleValidator;
 import lombok.RequiredArgsConstructor;
@@ -24,9 +25,10 @@ public class OrderUseCase implements OrderService {
     private final PlateRepository plateRepository;
     private final UserGateway userGateway;
     private final TraceabilityGateway traceabilityGateway;
+    private final NotificationGateway notificationGateway;
 
     @Override
-    public Order createOrder(Order order, Long clientId, String clientEmail, String userRole) {
+    public Order createOrder(Order order, Long clientId, String clientEmail, String clientPhone, String userRole) {
         RoleValidator.validateClientRole(userRole);
         OrderValidator.validateOrderStructure(order);
         OrderValidator.validateClientHasNoActiveOrders(clientId, orderRepository);
@@ -37,6 +39,7 @@ public class OrderUseCase implements OrderService {
         Order orderToCreate = order.toBuilder()
                 .clientId(clientId)
                 .clientEmail(clientEmail)
+                .clientPhone(clientPhone)
                 .status(OrderStatus.PENDING)
                 .items(enrichedItems)
                 .totalAmount(calculateTotalAmount(enrichedItems))
@@ -120,5 +123,45 @@ public class OrderUseCase implements OrderService {
         );
         
         return result;
+    }
+
+    @Override
+    public Order markOrderAsReady(Long orderId, Long employeeId, String userRole, String authToken) {
+        RoleValidator.validateEmployeeRole(userRole);
+        
+        Order order = orderRepository.findById(orderId);
+        OrderValidator.validateOrderExists(order);
+        OrderValidator.validateOrderCanBeMarkedAsReady(order);
+        
+        Long restaurantId = userGateway.getEmployeeRestaurantId(employeeId, authToken);
+        OrderValidator.validateOrderBelongsToRestaurant(order, restaurantId);
+        
+        String securityPin = generateSecurityPin();
+        
+        Order updatedOrder = order.toBuilder()
+                .status(OrderStatus.READY)
+                .securityPin(securityPin)
+                .updatedAt(LocalDateTime.now())
+                .build();
+        
+        Order result = orderRepository.update(updatedOrder);
+        
+        traceabilityGateway.sendOrderStatusChange(
+                order.getId(),
+                order.getClientId(),
+                order.getClientEmail(),
+                order.getStatus(),
+                OrderStatus.READY,
+                employeeId,
+                order.getEmployeeEmail()
+        );
+        
+        notificationGateway.sendOrderReadySms(order.getClientPhone(), order.getId(), securityPin);
+        
+        return result;
+    }
+    
+    private String generateSecurityPin() {
+        return String.format("%04d", (int) (Math.random() * 10000));
     }
 }

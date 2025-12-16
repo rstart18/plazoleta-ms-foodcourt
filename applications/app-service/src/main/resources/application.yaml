@@ -39,3 +39,5 @@ services:
     url: http://localhost:8080
   traceability:
     url: http://localhost:8082
+  notification:
+    url: http://localhost:8083
