@@ -6,10 +6,12 @@ import co.com.bancolombia.model.exception.BusinessException;
 import co.com.bancolombia.model.order.Order;
 import co.com.bancolombia.model.order.gateway.OrderRepository;
 import co.com.bancolombia.model.user.gateways.UserGateway;
+import co.com.bancolombia.model.traceability.gateways.TraceabilityGateway;
+import co.com.bancolombia.model.notification.gateways.NotificationGateway;
+import co.com.bancolombia.model.plate.gateways.PlateRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -24,13 +26,16 @@ class AssignOrderToEmployeeUseCaseTest {
 
     @Mock
     private OrderRepository orderRepository;
-
+    @Mock
+    private PlateRepository plateRepository;
     @Mock
     private UserGateway userGateway;
+    @Mock
+    private TraceabilityGateway traceabilityGateway;
+    @Mock
+    private NotificationGateway notificationGateway;
 
-    @InjectMocks
     private OrderUseCase orderUseCase;
-
     private Order pendingOrder;
     private Long employeeId;
     private String userRole;
@@ -38,13 +43,14 @@ class AssignOrderToEmployeeUseCaseTest {
 
     @BeforeEach
     void setUp() {
+        orderUseCase = new OrderUseCase(orderRepository, plateRepository, userGateway, traceabilityGateway, notificationGateway);
         employeeId = 1L;
         userRole = "EMPLOYEE";
         authToken = "Bearer token";
 
         pendingOrder = Order.builder()
                 .id(1L)
-                .customerId(100L)
+                .clientId(100L)
                 .restaurantId(1L)
                 .status(OrderStatus.PENDING)
                 .createdAt(LocalDateTime.now())
@@ -56,6 +62,7 @@ class AssignOrderToEmployeeUseCaseTest {
         // Given
         Order expectedOrder = pendingOrder.toBuilder()
                 .employeeId(employeeId)
+                .employeeEmail("employee@test.com")
                 .status(OrderStatus.IN_PREPARATION)
                 .updatedAt(LocalDateTime.now())
                 .build();
@@ -65,17 +72,19 @@ class AssignOrderToEmployeeUseCaseTest {
         when(orderRepository.update(any(Order.class))).thenReturn(expectedOrder);
 
         // When
-        Order result = orderUseCase.assignOrderToEmployee(1L, employeeId, userRole, authToken);
+        Order result = orderUseCase.assignOrderToEmployee(1L, employeeId, "employee@test.com", userRole, authToken);
 
         // Then
         assertNotNull(result);
         assertEquals(employeeId, result.getEmployeeId());
+        assertEquals("employee@test.com", result.getEmployeeEmail());
         assertEquals(OrderStatus.IN_PREPARATION, result.getStatus());
         assertNotNull(result.getUpdatedAt());
 
         verify(orderRepository).findById(1L);
         verify(userGateway).getEmployeeRestaurantId(employeeId, authToken);
         verify(orderRepository).update(any(Order.class));
+        verify(traceabilityGateway).sendOrderStatusChange(any(), any(), any(), any(), any(), any(), any());
     }
 
     @Test
@@ -85,7 +94,7 @@ class AssignOrderToEmployeeUseCaseTest {
 
         // When & Then
         BusinessException exception = assertThrows(BusinessException.class,
-                () -> orderUseCase.assignOrderToEmployee(1L, employeeId, userRole, authToken));
+                () -> orderUseCase.assignOrderToEmployee(1L, employeeId, "employee@test.com", userRole, authToken));
 
         assertEquals(DomainErrorCode.ORDER_NOT_FOUND.getCode(), exception.getCode());
         verify(orderRepository).findById(1L);
@@ -103,7 +112,7 @@ class AssignOrderToEmployeeUseCaseTest {
 
         // When & Then
         BusinessException exception = assertThrows(BusinessException.class,
-                () -> orderUseCase.assignOrderToEmployee(1L, employeeId, userRole, authToken));
+                () -> orderUseCase.assignOrderToEmployee(1L, employeeId, "employee@test.com", userRole, authToken));
 
         assertEquals(DomainErrorCode.ORDER_ALREADY_ASSIGNED.getCode(), exception.getCode());
         verify(orderRepository).findById(1L);
@@ -121,7 +130,7 @@ class AssignOrderToEmployeeUseCaseTest {
 
         // When & Then
         BusinessException exception = assertThrows(BusinessException.class,
-                () -> orderUseCase.assignOrderToEmployee(1L, employeeId, userRole, authToken));
+                () -> orderUseCase.assignOrderToEmployee(1L, employeeId, "employee@test.com", userRole, authToken));
 
         assertEquals(DomainErrorCode.INVALID_ORDER_STATUS_TRANSITION.getCode(), exception.getCode());
         verify(orderRepository).findById(1L);
@@ -137,7 +146,7 @@ class AssignOrderToEmployeeUseCaseTest {
 
         // When & Then
         BusinessException exception = assertThrows(BusinessException.class,
-                () -> orderUseCase.assignOrderToEmployee(1L, employeeId, userRole, authToken));
+                () -> orderUseCase.assignOrderToEmployee(1L, employeeId, "employee@test.com", userRole, authToken));
 
         assertEquals(DomainErrorCode.INSUFFICIENT_PERMISSIONS.getCode(), exception.getCode());
         verify(orderRepository).findById(1L);
