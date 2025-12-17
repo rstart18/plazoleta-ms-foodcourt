@@ -8,8 +8,11 @@ import co.com.bancolombia.api.dto.request.OrderReadyRequest;
 import co.com.bancolombia.api.dto.request.OrderRequest;
 import co.com.bancolombia.api.dto.response.ApiResponse;
 import co.com.bancolombia.api.dto.response.OrderResponse;
+import co.com.bancolombia.api.dto.response.OrderTraceResponse;
 import co.com.bancolombia.api.mapper.dto.OrderMapper;
+import co.com.bancolombia.api.mapper.dto.OrderTraceMapper;
 import co.com.bancolombia.model.order.Order;
+import co.com.bancolombia.model.traceability.OrderTrace;
 import co.com.bancolombia.usecase.order.OrderService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -17,6 +20,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 @RestController
@@ -26,6 +31,7 @@ public class OrderApiRest {
 
     private final OrderService orderService;
     private final OrderMapper orderMapper;
+    private final OrderTraceMapper orderTraceMapper;
 
     @PostMapping
     public ResponseEntity<ApiResponse<OrderResponse>> createOrder(
@@ -113,5 +119,12 @@ public class OrderApiRest {
         OrderResponse orderResponse = orderMapper.toResponseDTO(order);
 
         return ResponseEntity.ok(ApiResponse.of(orderResponse));
+    }
+
+    @GetMapping("/traces/{orderId}")
+    public ResponseEntity<ApiResponse<List<OrderTraceResponse>>> getOrderTraces( @PathVariable("orderId") Long orderId) {
+        List<OrderTrace> orderTraces = orderService.getOrderTraces(orderId);
+        List<OrderTraceResponse> traceResponses = orderTraceMapper.toResponseDTOList(orderTraces);
+        return ResponseEntity.ok(ApiResponse.of(traceResponses));
     }
 }

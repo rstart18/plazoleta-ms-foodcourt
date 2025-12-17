@@ -7,6 +7,7 @@ import co.com.bancolombia.model.orderitem.OrderItem;
 import co.com.bancolombia.model.page.PagedResult;
 import co.com.bancolombia.model.plate.Plate;
 import co.com.bancolombia.model.plate.gateways.PlateRepository;
+import co.com.bancolombia.model.traceability.OrderTrace;
 import co.com.bancolombia.model.traceability.gateways.TraceabilityGateway;
 import co.com.bancolombia.model.user.gateways.UserGateway;
 import co.com.bancolombia.model.notification.gateways.NotificationGateway;
@@ -224,5 +225,10 @@ public class OrderUseCase implements OrderService {
     
     private String generateSecurityPin() {
         return String.format("%04d", (int) (Math.random() * 10000));
+    }
+
+    @Override
+    public List<OrderTrace> getOrderTraces(Long orderId) {
+        return traceabilityGateway.getOrderTraces(orderId);
     }
 }
