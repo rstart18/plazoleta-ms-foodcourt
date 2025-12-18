@@ -1,0 +1,14 @@
+package co.com.bancolombia.gateway.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
+
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+public class EmployeeRankingApiResponse {
+    private List<EmployeeRankingResponse> data;
+}

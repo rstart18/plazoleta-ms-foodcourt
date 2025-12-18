@@ -1,10 +1,12 @@
 package co.com.bancolombia.gateway;
 
+import co.com.bancolombia.gateway.dto.EmployeeRankingApiResponse;
 import co.com.bancolombia.gateway.dto.TraceabilityApiResponse;
 import co.com.bancolombia.gateway.dto.TraceabilityRequest;
 import co.com.bancolombia.gateway.dto.TraceabilityResponse;
 import co.com.bancolombia.gateway.mapper.TraceabilityMapper;
 import co.com.bancolombia.model.enums.OrderStatus;
+import co.com.bancolombia.model.traceability.EmployeeRanking;
 import co.com.bancolombia.model.traceability.OrderTrace;
 import co.com.bancolombia.model.traceability.gateways.TraceabilityGateway;
 import lombok.RequiredArgsConstructor;
@@ -96,6 +98,38 @@ public class TraceabilityGatewayImpl implements TraceabilityGateway {
         } catch (Exception e) {
             log.error("Error getting traceability events for orderId {}: {}", orderId, e.getMessage(), e);
             throw new RuntimeException("Error getting order traces: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public List<EmployeeRanking> getEmployeesRanking() {
+        try {
+            String url = traceabilityServiceUrl + "/api/orders/efficiency/employees/ranking";
+            log.info("Getting employees ranking from: {}", url);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+            var response = restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    entity,
+                    EmployeeRankingApiResponse.class
+            );
+
+            log.info("Employees ranking response: status={}", response.getStatusCode());
+            EmployeeRankingApiResponse apiResponse = response.getBody();
+
+            if (apiResponse == null || apiResponse.getData() == null) {
+                return List.of();
+            }
+
+            return traceabilityMapper.toEmployeeRankingList(apiResponse.getData());
+
+        } catch (Exception e) {
+            log.error("Error getting employees ranking: {}", e.getMessage(), e);
+            throw new RuntimeException("Error getting employees ranking: " + e.getMessage(), e);
         }
     }
 }

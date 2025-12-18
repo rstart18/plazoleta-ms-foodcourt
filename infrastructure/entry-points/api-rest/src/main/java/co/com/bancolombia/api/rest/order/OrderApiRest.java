@@ -7,12 +7,16 @@ import co.com.bancolombia.api.dto.request.DeliverOrderRequest;
 import co.com.bancolombia.api.dto.request.OrderReadyRequest;
 import co.com.bancolombia.api.dto.request.OrderRequest;
 import co.com.bancolombia.api.dto.response.ApiResponse;
+import co.com.bancolombia.api.dto.response.EmployeeEfficiencyResponse;
 import co.com.bancolombia.api.dto.response.OrderResponse;
 import co.com.bancolombia.api.dto.response.OrderTraceResponse;
+import co.com.bancolombia.api.mapper.dto.EfficiencyMapper;
 import co.com.bancolombia.api.mapper.dto.OrderMapper;
 import co.com.bancolombia.api.mapper.dto.OrderTraceMapper;
 import co.com.bancolombia.model.order.Order;
+import co.com.bancolombia.model.traceability.EmployeeRanking;
 import co.com.bancolombia.model.traceability.OrderTrace;
+import co.com.bancolombia.usecase.efficiency.EfficiencyService;
 import co.com.bancolombia.usecase.order.OrderService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -30,7 +34,9 @@ import java.util.List;
 public class OrderApiRest {
 
     private final OrderService orderService;
+    private final EfficiencyService efficiencyService;
     private final OrderMapper orderMapper;
+    private final EfficiencyMapper efficiencyMapper;
     private final OrderTraceMapper orderTraceMapper;
 
     @PostMapping
@@ -126,5 +132,16 @@ public class OrderApiRest {
         List<OrderTrace> orderTraces = orderService.getOrderTraces(orderId);
         List<OrderTraceResponse> traceResponses = orderTraceMapper.toResponseDTOList(orderTraces);
         return ResponseEntity.ok(ApiResponse.of(traceResponses));
+    }
+
+    @GetMapping("/efficiency/employees/ranking")
+    public ResponseEntity<ApiResponse<List<EmployeeEfficiencyResponse>>> getEmployeesRanking(
+            HttpServletRequest request) {
+
+        String userRole = JwtUserInterceptor.getUserRole(request);
+        List<EmployeeRanking> employeeRankings = efficiencyService.getEmployeesRanking(userRole);
+        List<EmployeeEfficiencyResponse> response = efficiencyMapper.toResponseList(employeeRankings);
+
+        return ResponseEntity.ok(ApiResponse.of(response));
     }
 }
