@@ -1,7 +1,7 @@
 package co.com.bancolombia.api.rest.order;
 
 import co.com.bancolombia.api.config.JwtUserInterceptor;
-import co.com.bancolombia.api.dto.response.ApiResponse;
+import co.com.bancolombia.api.dto.response.ApiResponseData;
 import co.com.bancolombia.api.dto.response.PagedOrderResponse;
 import co.com.bancolombia.api.mapper.dto.OrderMapper;
 import co.com.bancolombia.model.enums.OrderStatus;
@@ -22,7 +22,7 @@ public class OrderEmployeeApiRest {
     private final OrderMapper orderMapper;
 
     @GetMapping
-    public ResponseEntity<ApiResponse<PagedOrderResponse>> listOrdersByStatus(
+    public ResponseEntity<ApiResponseData<PagedOrderResponse>> listOrdersByStatus(
             @RequestParam("status") OrderStatus status,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size,
@@ -35,6 +35,6 @@ public class OrderEmployeeApiRest {
         PagedResult<Order> orders = orderService.listOrdersByStatus(status, page, size, employeeId, userRole, authToken);
         PagedOrderResponse response = orderMapper.toPagedResponse(orders);
 
-        return ResponseEntity.ok(ApiResponse.of(response));
+        return ResponseEntity.ok(ApiResponseData.of(response));
     }
 }

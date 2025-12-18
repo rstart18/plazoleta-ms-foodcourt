@@ -5,10 +5,10 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class ApiResponse<T> {
+public class ApiResponseData<T> {
     private final T data;
 
-    public static <T> ApiResponse<T> of(T data) {
-        return new ApiResponse<>(data);
+    public static <T> ApiResponseData<T> of(T data) {
+        return new ApiResponseData<>(data);
     }
 }

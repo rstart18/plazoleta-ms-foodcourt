@@ -1,7 +1,7 @@
 package co.com.bancolombia.api.rest.restaurant;
 
 import co.com.bancolombia.api.config.JwtUserInterceptor;
-import co.com.bancolombia.api.dto.response.ApiResponse;
+import co.com.bancolombia.api.dto.response.ApiResponseData;
 import co.com.bancolombia.api.dto.response.OwnerValidationResponse;
 import co.com.bancolombia.usecase.owner.OwnerService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,7 +21,7 @@ public class RestaurantValidationApiRest {
     private final OwnerService validateOwnerService;
 
     @GetMapping("/{restaurantId}/owner/{ownerId}")
-    public ResponseEntity<ApiResponse<OwnerValidationResponse>> validateOwnerRestaurant(
+    public ResponseEntity<ApiResponseData<OwnerValidationResponse>> validateOwnerRestaurant(
             @PathVariable("restaurantId") Long restaurantId,
             @PathVariable("ownerId") Long ownerId,
             HttpServletRequest request) {
@@ -30,6 +30,6 @@ public class RestaurantValidationApiRest {
         boolean isOwner = validateOwnerService.validateOwnerRestaurant(restaurantId, ownerId, userRole);
         OwnerValidationResponse response = new OwnerValidationResponse(isOwner);
 
-        return ResponseEntity.ok(ApiResponse.of(response));
+        return ResponseEntity.ok(ApiResponseData.of(response));
     }
 }

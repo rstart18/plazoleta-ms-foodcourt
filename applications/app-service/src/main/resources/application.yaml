@@ -41,3 +41,11 @@ services:
     url: http://localhost:8082
   notification:
     url: http://localhost:8083
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
+  api-docs:
+    path: /v3/api-docs
+  show-actuator: false

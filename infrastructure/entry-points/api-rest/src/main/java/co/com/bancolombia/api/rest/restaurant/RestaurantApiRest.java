@@ -1,7 +1,7 @@
 package co.com.bancolombia.api.rest.restaurant;
 import co.com.bancolombia.api.config.JwtUserInterceptor;
 import co.com.bancolombia.api.dto.request.CreateRestaurantRequest;
-import co.com.bancolombia.api.dto.response.ApiResponse;
+import co.com.bancolombia.api.dto.response.ApiResponseData;
 import co.com.bancolombia.api.dto.response.PageResponse;
 import co.com.bancolombia.api.dto.response.RestaurantListResponse;
 import co.com.bancolombia.api.dto.response.RestaurantResponse;
@@ -18,7 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -32,18 +31,18 @@ public class RestaurantApiRest {
     private final RestaurantMapper restaurantMapper;
 
     @GetMapping
-    public ResponseEntity<ApiResponse<PageResponse<RestaurantListResponse>>> listRestaurants(
+    public ResponseEntity<ApiResponseData<PageResponse<RestaurantListResponse>>> listRestaurants(
             @RequestParam(value = "pageNumber", defaultValue = "0") int pageNumber,
             @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
 
         PagedResult<Restaurant> restaurants = restaurantService.listRestaurants(pageNumber, pageSize);
         PageResponse<RestaurantListResponse> response = restaurantMapper.toPageResponse(restaurants);
 
-        return ResponseEntity.ok(ApiResponse.of(response));
+        return ResponseEntity.ok(ApiResponseData.of(response));
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<RestaurantResponse>> createRestaurant(
+    public ResponseEntity<ApiResponseData<RestaurantResponse>> createRestaurant(
             @Valid @RequestBody CreateRestaurantRequest request,
             HttpServletRequest httpRequest) {
 
@@ -52,6 +51,6 @@ public class RestaurantApiRest {
         Restaurant createdRestaurant = restaurantService.createRestaurant(restaurant, userRole);
         RestaurantResponse response = restaurantMapper.toResponse(createdRestaurant);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.of(response));
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponseData.of(response));
     }
 }

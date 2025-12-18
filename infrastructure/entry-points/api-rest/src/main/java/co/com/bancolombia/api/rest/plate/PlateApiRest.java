@@ -3,7 +3,7 @@ package co.com.bancolombia.api.rest.plate;
 import co.com.bancolombia.api.config.JwtUserInterceptor;
 import co.com.bancolombia.api.dto.request.CreatePlateRequest;
 import co.com.bancolombia.api.dto.request.UpdatePlateRequest;
-import co.com.bancolombia.api.dto.response.ApiResponse;
+import co.com.bancolombia.api.dto.response.ApiResponseData;
 import co.com.bancolombia.api.dto.response.PagedPlateResponse;
 import co.com.bancolombia.api.dto.response.PlateResponse;
 import co.com.bancolombia.api.dto.response.PlateListResponse;
@@ -38,7 +38,7 @@ public class PlateApiRest {
     private final PlateMapper plateMapper;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<PlateResponse>> createPlate(
+    public ResponseEntity<ApiResponseData<PlateResponse>> createPlate(
             @Valid @RequestBody CreatePlateRequest request,
             HttpServletRequest httpRequest) {
         Plate plate = plateMapper.toModel(request);
@@ -48,11 +48,11 @@ public class PlateApiRest {
         Plate createdPlate = plateService.createPlate(plate, userId, userRole);
 
         PlateResponse response = plateMapper.toResponse(createdPlate);
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.of(response));
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponseData.of(response));
     }
 
     @PatchMapping("/{plateId}")
-    public ResponseEntity<ApiResponse<PlateResponse>> updatePlate(
+    public ResponseEntity<ApiResponseData<PlateResponse>> updatePlate(
             @PathVariable("plateId") Long plateId,
             @Valid @RequestBody UpdatePlateRequest request,
             HttpServletRequest httpRequest) {
@@ -63,11 +63,11 @@ public class PlateApiRest {
         Plate updatedPlate = plateService.updatePlate(plateId, plateUpdates, userId, userRole);
 
         PlateResponse response = plateMapper.toResponse(updatedPlate);
-        return ResponseEntity.ok(ApiResponse.of(response));
+        return ResponseEntity.ok(ApiResponseData.of(response));
     }
 
     @PatchMapping("/{plateId}/status")
-    public ResponseEntity<ApiResponse<PlateStatusResponse>> togglePlateStatus(
+    public ResponseEntity<ApiResponseData<PlateStatusResponse>> togglePlateStatus(
             @PathVariable("plateId") Long plateId,
             HttpServletRequest httpRequest) {
 
@@ -76,11 +76,11 @@ public class PlateApiRest {
         Plate updatedPlate = plateService.togglePlateStatus(plateId, userId, userRole);
 
         PlateStatusResponse response = plateMapper.toStatusResponse(updatedPlate);
-        return ResponseEntity.ok(ApiResponse.of(response));
+        return ResponseEntity.ok(ApiResponseData.of(response));
     }
 
     @GetMapping("/restaurant/{restaurantId}")
-    public ResponseEntity<ApiResponse<PagedPlateResponse>> getPlatesByRestaurant(
+    public ResponseEntity<ApiResponseData<PagedPlateResponse>> getPlatesByRestaurant(
             @PathVariable("restaurantId") Long restaurantId,
             @RequestParam(value = "category", required = false) String category,
             @RequestParam(value = "page", defaultValue = "0") int page,
@@ -106,7 +106,7 @@ public class PlateApiRest {
                 pagedResult.getTotalPages()
         );
         
-        return ResponseEntity.ok(ApiResponse.of(response));
+        return ResponseEntity.ok(ApiResponseData.of(response));
     }
 
 }
