@@ -1,6 +1,8 @@
 package co.com.bancolombia.usecase.order;
 
+import co.com.bancolombia.model.enums.DomainErrorCode;
 import co.com.bancolombia.model.enums.OrderStatus;
+import co.com.bancolombia.model.exception.BusinessException;
 import co.com.bancolombia.model.order.Order;
 import co.com.bancolombia.model.order.gateway.OrderRepository;
 import co.com.bancolombia.model.traceability.gateways.TraceabilityGateway;
@@ -10,6 +12,7 @@ import co.com.bancolombia.model.plate.gateways.PlateRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -136,5 +139,114 @@ class MarkOrderAsReadyUseCaseTest {
 
         // Then
         verify(notificationGateway).sendOrderReadySms(eq(clientPhone), eq(orderId), anyString());
+    }
+
+    @Test
+    void markOrderAsReady_ShouldThrowExceptionWhenUserRoleIsNotEmployee() {
+        // Given
+        Long orderId = 1L;
+        Long employeeId = 2L;
+        String invalidRole = "CLIENT";
+
+        // When & Then
+        BusinessException exception = assertThrows(BusinessException.class,
+                () -> orderUseCase.markOrderAsReady(orderId, employeeId, invalidRole, "token"));
+
+        assertEquals(DomainErrorCode.INSUFFICIENT_PERMISSIONS.getCode(), exception.getCode());
+        verify(orderRepository, never()).findById(any());
+        verify(orderRepository, never()).update(any());
+    }
+
+    @Test
+    void markOrderAsReady_ShouldThrowExceptionWhenOrderNotFound() {
+        // Given
+        Long orderId = 1L;
+        when(orderRepository.findById(orderId)).thenReturn(null);
+
+        // When & Then
+        BusinessException exception = assertThrows(BusinessException.class,
+                () -> orderUseCase.markOrderAsReady(orderId, 2L, "EMPLOYEE", "token"));
+
+        assertEquals(DomainErrorCode.ORDER_NOT_FOUND.getCode(), exception.getCode());
+        verify(orderRepository, never()).update(any());
+    }
+
+    @Test
+    void markOrderAsReady_ShouldThrowExceptionWhenOrderNotInPreparation() {
+        // Given
+        Long orderId = 1L;
+        Order pendingOrder = Order.builder()
+                .id(orderId)
+                .status(OrderStatus.PENDING)
+                .restaurantId(3L)
+                .build();
+
+        when(orderRepository.findById(orderId)).thenReturn(pendingOrder);
+
+        // When & Then
+        BusinessException exception = assertThrows(BusinessException.class,
+                () -> orderUseCase.markOrderAsReady(orderId, 2L, "EMPLOYEE", "token"));
+
+        assertEquals(DomainErrorCode.INVALID_ORDER_STATUS_TRANSITION.getCode(), exception.getCode());
+        verify(orderRepository, never()).update(any());
+    }
+
+    @Test
+    void markOrderAsReady_ShouldThrowExceptionWhenEmployeeNotFromSameRestaurant() {
+        // Given
+        Long orderId = 1L;
+        Long employeeId = 2L;
+        Order inPrepOrder = Order.builder()
+                .id(orderId)
+                .status(OrderStatus.IN_PREPARATION)
+                .restaurantId(3L)
+                .build();
+
+        when(orderRepository.findById(orderId)).thenReturn(inPrepOrder);
+        when(userGateway.getEmployeeRestaurantId(employeeId, "token")).thenReturn(5L);
+
+        // When & Then
+        BusinessException exception = assertThrows(BusinessException.class,
+                () -> orderUseCase.markOrderAsReady(orderId, employeeId, "EMPLOYEE", "token"));
+
+        assertEquals(DomainErrorCode.INSUFFICIENT_PERMISSIONS.getCode(), exception.getCode());
+        verify(orderRepository, never()).update(any());
+    }
+
+    @Test
+    void markOrderAsReady_ShouldCallAllServicesInCorrectOrder() {
+        // Given
+        Long orderId = 1L;
+        Long employeeId = 2L;
+        String userRole = "EMPLOYEE";
+        String authToken = "Bearer token";
+        Long restaurantId = 3L;
+
+        Order existingOrder = Order.builder()
+                .id(orderId)
+                .clientId(100L)
+                .clientPhone("+573001234567")
+                .restaurantId(restaurantId)
+                .status(OrderStatus.IN_PREPARATION)
+                .build();
+
+        when(orderRepository.findById(orderId)).thenReturn(existingOrder);
+        when(userGateway.getEmployeeRestaurantId(employeeId, authToken)).thenReturn(restaurantId);
+        when(orderRepository.update(any(Order.class))).thenAnswer(invocation -> {
+            Order arg = (Order) invocation.getArgument(0);
+            return arg.toBuilder().status(OrderStatus.READY).build();
+        });
+
+        // When
+        Order result = orderUseCase.markOrderAsReady(orderId, employeeId, userRole, authToken);
+
+        // Then
+        assertEquals(OrderStatus.READY, result.getStatus());
+
+        InOrder inOrder = inOrder(orderRepository, userGateway, notificationGateway);
+        inOrder.verify(orderRepository).findById(orderId);
+        inOrder.verify(userGateway).getEmployeeRestaurantId(employeeId, authToken);
+        inOrder.verify(orderRepository).update(any(Order.class));
+        inOrder.verify(notificationGateway).sendOrderReadySms(anyString(), eq(orderId), anyString());
     }
 }

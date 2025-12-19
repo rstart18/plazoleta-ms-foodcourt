@@ -110,4 +110,49 @@ class CreatePlateUseCaseTest {
         verify(restaurantRepository).findById(1L);
         verify(plateRepository, never()).create(any());
     }
+
+    @Test
+    void shouldThrowExceptionWhenUserRoleIsNotOwner() {
+        // Given
+        String invalidRole = "EMPLOYEE";
+
+        // When & Then
+        BusinessException exception = assertThrows(BusinessException.class,
+                () -> plateUseCase.createPlate(plate, userId, invalidRole));
+
+        assertEquals(DomainErrorCode.INSUFFICIENT_PERMISSIONS.getCode(), exception.getCode());
+
+        verify(restaurantRepository, never()).findById(any());
+        verify(plateRepository, never()).create(any());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenUserRoleIsClient() {
+        // Given
+        String invalidRole = "CLIENT";
+
+        // When & Then
+        BusinessException exception = assertThrows(BusinessException.class,
+                () -> plateUseCase.createPlate(plate, userId, invalidRole));
+
+        assertEquals(DomainErrorCode.INSUFFICIENT_PERMISSIONS.getCode(), exception.getCode());
+
+        verify(restaurantRepository, never()).findById(any());
+        verify(plateRepository, never()).create(any());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenUserRoleIsAdmin() {
+        // Given
+        String invalidRole = "ADMIN";
+
+        // When & Then
+        BusinessException exception = assertThrows(BusinessException.class,
+                () -> plateUseCase.createPlate(plate, userId, invalidRole));
+
+        assertEquals(DomainErrorCode.INSUFFICIENT_PERMISSIONS.getCode(), exception.getCode());
+
+        verify(restaurantRepository, never()).findById(any());
+        verify(plateRepository, never()).create(any());
+    }
 }
